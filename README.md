@@ -1,0 +1,1 @@
+# weblog-by-JH2YQB-JA2YBN-JS2TRG
