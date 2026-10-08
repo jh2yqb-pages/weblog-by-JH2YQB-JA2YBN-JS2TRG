@@ -1359,23 +1359,25 @@
             pendingDeleteId = null;
         });
 
-        confirmDeleteBtn.addEventListener('click', async () => {
-            if (!pendingDeleteId) return;
-            const targetId = pendingDeleteId;
-            qsoLogs = qsoLogs.filter(l => l.id !== targetId);
-            
-            if (currentUser && !currentUser.isLocal && !currentUser.isAnonymous && db) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'qsoLogs', targetId));
-                } catch (e) {
-                    console.warn("Cloud delete failed:", e);
-                }
-            }
-            await saveLogs();
-            deleteModal.classList.add('hidden');
-            pendingDeleteId = null;
-            updateUI();
-        });
+confirmDeleteBtn.addEventListener('click', () => {
+    if (!pendingDeleteId) return;
+    const targetIdStr = String(pendingDeleteId);
+    
+    // 1. ローカル配列から即座に削除（型を合わせて確実に一致させる）
+    qsoLogs = qsoLogs.filter(l => String(l.id) !== targetIdStr);
+
+    // 2. 画面を即時更新してモーダルを閉じる（待ち時間ゼロにする）
+    deleteModal.classList.add('hidden');
+    pendingDeleteId = null;
+    updateUI();
+
+    // 3. ローカル保存とクラウド削除をバックグラウンドで処理
+    saveLogs();
+    if (currentUser && !currentUser.isLocal && !currentUser.isAnonymous && db) {
+        deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'qsoLogs', targetIdStr))
+            .catch(e => console.warn("Cloud delete failed:", e));
+    }
+});
 
         clearAllLogsBtn.addEventListener('click', () => {
             const currentContest = contestSelect.value;
