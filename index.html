@@ -739,9 +739,14 @@
             'NAGANO_QSO': { name: '長野QSOコンテスト', area: '0', my_hint: '市郡/県外番号+PWR', his_hint: '例: 0901M', rule_type: 'JCC_PWR', sequential: false }
         };
 
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : { apiKey: "dummy-key", authDomain: "dummy.firebaseapp.com", projectId: "dummy-project" };
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx9_a-T5-lD2N1BPsSl1LIH3z0m5aJ1K8",
+  authDomain: "weblog-17669.firebaseapp.com",
+  projectId: "weblog-17669",
+  storageBucket: "weblog-17669.firebasestorage.app",
+  messagingSenderId: "574825323120",
+  appId: "1:574825323120:web:bd3654de564736e1e1f2b5"
+};
 
         let app, auth, db;
         try {
