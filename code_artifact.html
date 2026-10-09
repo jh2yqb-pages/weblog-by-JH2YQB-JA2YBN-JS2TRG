@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アマチュア無線 コンテストログソフト - Ham Contest Logger</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-cyan-500 p-2.5 rounded-xl shadow-lg shadow-brand-500/20">
+                    <i class="fa-solid font-bold fa-radio text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide flex items-center gap-2">
+                        Ham Contest Logger
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">v2.5 Pro</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">東海エリア（愛・地球博記念・東海マラソン）＆全国コンテスト対応</p>
+                </div>
+            </div>
+
+            <!-- Account Status & Tools -->
+            <div class="flex items-center space-x-3 text-sm">
+                <div id="syncStatus" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="statusDot"></span>
+                    <span id="statusText" class="text-slate-300 font-medium">ローカル動作中</span>
+                </div>
+
+                <div id="userProfile" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                    <i class="fa-solid fa-circle-user text-brand-400"></i>
+                    <span id="userEmail" class="text-xs text-slate-200 font-medium truncate max-w-[120px]">ユーザー</span>
+                    <button id="logoutBtn" title="ログアウト" class="text-slate-400 hover:text-rose-400 text-xs ml-1 transition"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+
+                <button id="loginBtn" class="flex items-center space-x-1.5 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg font-medium text-xs shadow-md transition">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Googleログイン</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Control & Stats Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Contest Selector -->
+            <div class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-between">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-trophy text-amber-400 mr-1"></i> 対象コンテスト選択
+                    </label>
+                    <select id="contestSelect" class="w-full bg-slate-950 border border-slate-700 text-slate-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <optgroup label="2エリア（東海エリア）">
+                            <option value="AichiEarthExpo">愛・地球博記念コンテスト (愛知)</option>
+                            <option value="TokaiMarathon" selected>東海マラソンコンテスト (東海)</option>
+                            <option value="Tokai3Prefectures">東海3県コンテスト</option>
+                            <option value="AichiContest">愛知県コンテスト</option>
+                            <option value="GifuContest">岐阜県コンテスト</option>
+                            <option value="MieContest">三重県コンテスト</option>
+                            <option value="ShizuokaContest">静岡県コンテスト</option>
+                        </optgroup>
+                        <optgroup label="JARL主催・全国・主要コンテスト">
+                            <option value="ALLJA">ALL JA コンテスト</option>
+                            <option value="6mANDDown">6m & Down コンテスト</option>
+                            <option value="FieldDay">フィールドデー コンテスト</option>
+                            <option value="AllAsianDX">All Asian DX コンテスト</option>
+                            <option value="ACAG">全日本ACAGコンテスト</option>
+                            <option value="GeneralQSO">通常QSO（コンテスト以外）</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div id="contestRuleHint" class="mt-3 p-2.5 bg-slate-950/60 border border-slate-800 rounded-lg text-xs text-brand-300 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-brand-400"></i>
+                    <span id="contestHintText">ナンバー: RS(T) + 市郡区ナンバー (例: 59 1901)</span>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">総QSO数</span>
+                <div class="flex items-baseline justify-between my-2">
+                    <span id="totalQsoCount" class="text-3xl font-extrabold text-brand-400">0</span>
+                    <span class="text-xs text-slate-500">QSOs</span>
+                </div>
+                <div class="text-xs text-slate-400 flex justify-between">
+                    <span>Dupe(重複): <strong id="dupeCount" class="text-amber-400">0</strong></span>
+                    <span>本日: <strong id="todayCount" class="text-emerald-400">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Time Display & Mode -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">現在時刻</span>
+                    <button id="toggleTimeModeBtn" class="text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-0.5 rounded hover:bg-slate-700">
+                        <span id="timeModeLabel">JST</span>
+                    </button>
+                </div>
+                <div class="my-1">
+                    <div id="clockDisplay" class="text-2xl font-mono font-bold text-slate-100 tracking-wider">00:00:00</div>
+                    <div id="dateDisplay" class="text-xs font-mono text-slate-400">2026-10-09</div>
+                </div>
+                <div class="text-[11px] text-slate-500">UTC/JSTを自動選択中</div>
+            </div>
+        </div>
+
+        <!-- QSO Entry Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg relative">
+            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wide mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-brand-500"></i> 交信データ入力 (QSO Entry)
+            </h2>
+
+            <form id="qsoForm" class="space-y-4" onsubmit="return false;">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                    <!-- Date -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">日付 (Date)</label>
+                        <input type="date" id="inputDate" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">時刻 (Time)</label>
+                        <input type="text" id="inputTime" placeholder="HH:MM" maxlength="5" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- CallSign -->
+                    <div class="col-span-2 sm:col-span-1 md:col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1 font-semibold text-brand-300">Callsign <span class="text-rose-400">*</span></label>
+                        <div class="relative">
+                            <input type="text" id="inputCallsign" placeholder="JA2YAA" uppercase class="w-full uppercase bg-slate-950 border border-slate-600 rounded-lg px-3 py-1.5 text-base font-bold tracking-wider text-amber-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none">
+                            <span id="dupeBadge" class="hidden absolute right-2 top-2 bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold">DUPE</span>
+                        </div>
+                    </div>
+
+                    <!-- Band -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Band</label>
+                        <select id="inputBand" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
+                            <option value="1.9MHz">1.9 MHz</option>
+                            <option value="3.5MHz">3.5 MHz</option>
+                            <option value="7MHz" selected>7 MHz</option>
+                            <option value="14MHz">14 MHz</option>
+                            <option value="21MHz">21 MHz</option>
+                            <option value="28MHz">28 MHz</option>
+                            <option value="50MHz">50 MHz</option>
+                            <option value="144MHz">144 MHz</option>
+                            <option value="430MHz">430 MHz</option>
+                            <option value="1200MHz">1200 MHz</option>
+                        </select>
+                    </div>
+
+                    <!-- Mode -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Mode</label>
+                        <select id="inputMode" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
+                            <option value="CW">CW</option>
+                            <option value="SSB" selected>SSB</option>
+                            <option value="FM">FM</option>
+                            <option value="AM">AM</option>
+                            <option value="FT8">FT8</option>
+                            <option value="RTTY">RTTY</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                    <!-- Sent RST -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">送信 RST</label>
+                        <input type="text" id="inputSentRst" value="59" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- Sent NR -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">送信 ナンバー</label>
+                        <input type="text" id="inputSentNr" placeholder="200101" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- Rcvd RST -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">受信 RST</label>
+                        <input type="text" id="inputRcvdRst" value="59" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- Rcvd NR -->
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1 font-semibold text-brand-300">受信 ナンバー <span class="text-rose-400">*</span></label>
+                        <input type="text" id="inputRcvdNr" placeholder="例: 20H / 1901" class="w-full bg-slate-950 border border-slate-600 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-emerald-300 font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="col-span-2">
+                        <label class="block text-xs text-slate-400 mb-1">備考 / Multi (Option)</label>
+                        <input type="text" id="inputRemarks" placeholder="QTH, Name, Note" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm text-slate-100 focus:border-brand-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Submit and Clear Buttons -->
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" id="clearBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left"></i> クリア
+                    </button>
+                    <button type="submit" id="saveBtn" class="px-6 py-2 bg-gradient-to-r from-brand-600 to-cyan-600 hover:from-brand-500 hover:to-cyan-500 text-white rounded-lg text-sm font-bold shadow-md shadow-brand-600/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> QSO保存 (Enter)
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- QSO History Table Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-lg overflow-hidden">
+            <!-- Table Header Toolbar -->
+            <div class="p-4 border-b border-slate-800 flex flex-wrap justify-between items-center gap-3 bg-slate-900/60">
+                <div class="flex items-center space-x-3">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-brand-400"></i> QSO 記録ログ
+                    </h3>
+                    <span id="filteredCount" class="text-xs bg-slate-800 border border-slate-700 text-slate-400 px-2.5 py-0.5 rounded-full">0件表示</span>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative">
+                        <input type="text" id="searchLog" placeholder="Callsign/NR検索..." class="bg-slate-950 border border-slate-700 rounded-lg pl-8 pr-3 py-1 text-xs text-slate-100 w-36 sm:w-48 focus:outline-none focus:border-brand-500">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-500 text-xs"></i>
+                    </div>
+
+                    <select id="filterBand" class="bg-slate-950 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 text-xs focus:outline-none">
+                        <option value="ALL">全Band</option>
+                        <option value="1.9MHz">1.9MHz</option>
+                        <option value="3.5MHz">3.5MHz</option>
+                        <option value="7MHz">7MHz</option>
+                        <option value="14MHz">14MHz</option>
+                        <option value="21MHz">21MHz</option>
+                        <option value="28MHz">28MHz</option>
+                        <option value="50MHz">50MHz</option>
+                        <option value="144MHz">144MHz</option>
+                        <option value="430MHz">430MHz</option>
+                        <option value="1200MHz">1200MHz</option>
+                    </select>
+
+                    <div class="flex items-center space-x-1 pl-2 border-l border-slate-800">
+                        <button id="exportCsvBtn" title="CSVダウンロード" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md text-xs transition">
+                            <i class="fa-solid fa-file-csv text-emerald-400"></i> CSV
+                        </button>
+                        <button id="exportCabrilloBtn" title="JARL/Cabrillo出力" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-md text-xs transition">
+                            <i class="fa-solid fa-file-lines text-amber-400"></i> JARL
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="overflow-x-auto custom-scrollbar max-h-[460px]">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-950 text-slate-400 uppercase font-mono tracking-wider sticky top-0 z-10 border-b border-slate-800">
+                        <tr>
+                            <th class="py-3 px-3">#</th>
+                            <th class="py-3 px-3">Date</th>
+                            <th class="py-3 px-3">Time</th>
+                            <th class="py-3 px-3">Callsign</th>
+                            <th class="py-3 px-3">Band</th>
+                            <th class="py-3 px-3">Mode</th>
+                            <th class="py-3 px-3">Sent</th>
+                            <th class="py-3 px-3">Rcvd</th>
+                            <th class="py-3 px-3">Remarks</th>
+                            <th class="py-3 px-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody" class="divide-y divide-slate-800/60 font-mono text-slate-300">
+                        <!-- Dynamic QSO Logs Rendered Here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State Prompt -->
+            <div id="emptyLogPrompt" class="py-12 text-center text-slate-500">
+                <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-600 block"></i>
+                <p>QSOデータがありません。上のフォームから入力を行ってください。</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-sm w-full shadow-2xl space-y-4">
+            <div class="flex items-center space-x-3 text-rose-400">
+                <div class="p-2 bg-rose-500/10 rounded-lg">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                </div>
+                <h3 class="font-bold text-slate-100">ログの削除確認</h3>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                選択した交信ログを削除しますか？この操作はローカルおよびクラウド同期データから即座に削除されます。
+            </p>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button id="cancelDeleteBtn" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition">
+                    キャンセル
+                </button>
+                <button id="confirmDeleteBtn" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-bold shadow-md transition">
+                    削除する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic & Firebase Synchronization -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const LOCAL_STORAGE_KEY = "ham_contest_qso_logs_v2";
+        let qsoLogs = [];
+        let pendingDeleteId = null;
+        let timeMode = "JST"; // JST or UTC
+        let currentUser = null;
+        let db = null;
+        let auth = null;
+
+        // Application Identifier for standard Firestore Path
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ham-contest-logger';
+
+        // Firebase Configuration Fallback logic
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDx9DummyKeyForStandaloneModeOnly",
+                authDomain: "dummy-project.firebaseapp.com",
+                projectId: "dummy-project",
+                storageBucket: "dummy-project.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abc123def456"
+            };
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            // Auth State Listener
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateAuthUI();
+                if (user) {
+                    subscribeCloudLogs();
+                }
+            });
+
+            // Auto Sign-in with custom token or anonymously if available
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                signInWithCustomToken(auth, __initial_auth_token).catch(() => signInAnonymously(auth));
+            } else {
+                signInAnonymously(auth).catch((e) => console.log("Offline mode initialized without Firebase auth."));
+            }
+        } catch (e) {
+            console.warn("Firebase initialization skipped or running offline:", e);
+        }
+
+        const CONTEST_RULES = {
+            "AichiEarthExpo": "愛・地球博記念コンテスト: RS(T) + オペレータの年齢 (例: 59 45 / 01=ジュニア/社団)",
+            "TokaiMarathon": "東海マラソンコンテスト: RS(T) + 市郡区ナンバー (例: 59 1901)",
+            "Tokai3Prefectures": "東海3県コンテスト: RS(T) + 市区町村ナンバー",
+            "AichiContest": "愛知県コンテスト: RS(T) + 市郡区ナンバー",
+            "GifuContest": "岐阜県コンテスト: RS(T) + 市郡区ナンバー",
+            "MieContest": "三重県コンテスト: RS(T) + 市郡区ナンバー",
+            "ShizuokaContest": "静岡県コンテスト: RS(T) + 市郡区ナンバー",
+            "ALLJA": "ALL JA: RS(T) + 都道府県ナンバー (例: 59 20)",
+            "6mANDDown": "6m & Down: RS(T) + 都道府県ナンバー + 空中線電力記号",
+            "FieldDay": "Field Day: RS(T) + 都道府県ナンバー + 力記号",
+            "AllAsianDX": "All Asian DX: RS(T) + オペレーター年齢",
+            "ACAG": "全日本ACAG: RS(T) + 都道府県/地域ナンバー",
+            "GeneralQSO": "通常交信: 通常のRST + 相手のQTHや名前メモ"
+        };
+
+        window.addEventListener("DOMContentLoaded", () => {
+            loadLocalLogs();
+            initClock();
+            setupFormDefaults();
+            attachEventListeners();
+            updateContestHint();
+            renderLogTable();
+        });
+
+        function loadLocalLogs() {
+            try {
+                const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (saved) {
+                    qsoLogs = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error("Local storage load error:", e);
+                qsoLogs = [];
+            }
+        }
+
+        function saveLocalLogs() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
+            } catch (e) {
+                console.error("Local storage save error:", e);
+            }
+        }
+
+        function initClock() {
+            function update() {
+                const now = new Date();
+                let displayDate, displayTime;
+
+                if (timeMode === "UTC") {
+                    displayDate = now.toISOString().split("T")[0];
+                    displayTime = now.toISOString().split("T")[1].substring(0, 8);
+                } else {
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    displayDate = `${year}-${month}-${day}`;
+                    displayTime = now.toTimeString().split(" ")[0];
+                }
+
+                document.getElementById("clockDisplay").textContent = displayTime;
+                document.getElementById("dateDisplay").textContent = `${displayDate} (${timeMode})`;
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function setupFormDefaults() {
+            const now = new Date();
+            const dateStr = now.toISOString().split("T")[0];
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            document.getElementById("inputDate").value = dateStr;
+            document.getElementById("inputTime").value = `${hours}:${minutes}`;
+        }
+
+        function attachEventListeners() {
+            // Contest Selection Change
+            document.getElementById("contestSelect").addEventListener("change", updateContestHint);
+
+            // Time Mode Toggle
+            document.getElementById("toggleTimeModeBtn").addEventListener("click", () => {
+                timeMode = timeMode === "JST" ? "UTC" : "JST";
+                document.getElementById("timeModeLabel").textContent = timeMode;
+            });
+
+            // Callsign Dupe Check Listener
+            document.getElementById("inputCallsign").addEventListener("input", (e) => {
+                e.target.value = e.target.value.toUpperCase();
+                checkDupe();
+            });
+
+            document.getElementById("inputBand").addEventListener("change", checkDupe);
+            document.getElementById("inputMode").addEventListener("change", checkDupe);
+
+            // Clear Button
+            document.getElementById("clearBtn").addEventListener("click", resetInputFields);
+
+            // Form Submit (Save QSO)
+            document.getElementById("qsoForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                saveQsoLog();
+            });
+
+            // Search & Filter Listeners
+            document.getElementById("searchLog").addEventListener("input", renderLogTable);
+            document.getElementById("filterBand").addEventListener("change", renderLogTable);
+
+            // Export Buttons
+            document.getElementById("exportCsvBtn").addEventListener("click", exportToCSV);
+            document.getElementById("exportCabrilloBtn").addEventListener("click", exportToCabrillo);
+
+            // Google Login Button
+            document.getElementById("loginBtn").addEventListener("click", handleGoogleLogin);
+            document.getElementById("logoutBtn").addEventListener("click", handleLogout);
+
+            // Delete Modal Buttons
+            document.getElementById("cancelDeleteBtn").addEventListener("click", closeDeleteModal);
+            document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDeleteQso);
+        }
+
+        function updateContestHint() {
+            const contestKey = document.getElementById("contestSelect").value;
+            const hint = CONTEST_RULES[contestKey] || "コンテスト規定のナンバーを入力してください";
+            document.getElementById("contestHintText").textContent = hint;
+        }
+
+        function checkDupe() {
+            const callsign = document.getElementById("inputCallsign").value.trim().toUpperCase();
+            const band = document.getElementById("inputBand").value;
+            const mode = document.getElementById("inputMode").value;
+            const badge = document.getElementById("dupeBadge");
+
+            if (!callsign) {
+                badge.classList.add("hidden");
+                return false;
+            }
+
+            const isDupe = qsoLogs.some(log => 
+                log.callsign.toUpperCase() === callsign && 
+                log.band === band && 
+                log.mode === mode
+            );
+
+            if (isDupe) {
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
+            return isDupe;
+        }
+
+        function saveQsoLog() {
+            const callsignInput = document.getElementById("inputCallsign");
+            const rcvdNrInput = document.getElementById("inputRcvdNr");
+
+            const callsign = callsignInput.value.trim().toUpperCase();
+            const rcvdNr = rcvdNrInput.value.trim();
+
+            if (!callsign) {
+                alert("コールサインを入力してください。");
+                callsignInput.focus();
+                return;
+            }
+
+            if (!rcvdNr) {
+                alert("受信ナンバーを入力してください。");
+                rcvdNrInput.focus();
+                return;
+            }
+
+            const qsoData = {
+                id: String(Date.now()), // Guaranteed string ID
+                contest: document.getElementById("contestSelect").value,
+                date: document.getElementById("inputDate").value,
+                time: document.getElementById("inputTime").value,
+                callsign: callsign,
+                band: document.getElementById("inputBand").value,
+                mode: document.getElementById("inputMode").value,
+                sentRst: document.getElementById("inputSentRst").value.trim() || "59",
+                sentNr: document.getElementById("inputSentNr").value.trim() || "01",
+                rcvdRst: document.getElementById("inputRcvdRst").value.trim() || "59",
+                rcvdNr: rcvdNr,
+                remarks: document.getElementById("inputRemarks").value.trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            // 1. Immediate UI & Local Storage Update (Zero Latency Response)
+            qsoLogs.unshift(qsoData);
+            saveLocalLogs();
+            renderLogTable();
+
+            // Clear input for next rapid QSO
+            callsignInput.value = "";
+            rcvdNrInput.value = "";
+            document.getElementById("inputRemarks").value = "";
+            document.getElementById("dupeBadge").classList.add("hidden");
+            callsignInput.focus();
+
+            // 2. Async Cloud Firestore Save in Background
+            if (currentUser && db) {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'qsoLogs', qsoData.id);
+                setDoc(docRef, qsoData, { merge: true }).catch(err => {
+                    console.warn("Background cloud sync error:", err);
+                });
+            }
+        }
+
+        window.openDeleteModal = function(id) {
+            pendingDeleteId = String(id);
+            document.getElementById("deleteModal").classList.remove("hidden");
+        };
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            document.getElementById("deleteModal").classList.add("hidden");
+        }
+
+        function confirmDeleteQso() {
+            if (!pendingDeleteId) return;
+
+            const targetIdStr = String(pendingDeleteId);
+
+            // 1. Immediate local array filter & rapid UI update
+            qsoLogs = qsoLogs.filter(log => String(log.id) !== targetIdStr);
+            saveLocalLogs();
+            renderLogTable();
+            closeDeleteModal();
+
+            // 2. Async background Firestore deletion
+            if (currentUser && db) {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'qsoLogs', targetIdStr);
+                deleteDoc(docRef).catch(err => console.warn("Cloud delete failed:", err));
+            }
+        }
+
+        function renderLogTable() {
+            const tableBody = document.getElementById("logTableBody");
+            const emptyPrompt = document.getElementById("emptyLogPrompt");
+            const searchKeyword = document.getElementById("searchLog").value.trim().toUpperCase();
+            const filterBand = document.getElementById("filterBand").value;
+
+            let filtered = qsoLogs.filter(log => {
+                const matchesKeyword = !searchKeyword || 
+                    log.callsign.toUpperCase().includes(searchKeyword) || 
+                    log.rcvdNr.toUpperCase().includes(searchKeyword) ||
+                    (log.remarks && log.remarks.toUpperCase().includes(searchKeyword));
+                
+                const matchesBand = filterBand === "ALL" || log.band === filterBand;
+                return matchesKeyword && matchesBand;
+            });
+
+            document.getElementById("filteredCount").textContent = `${filtered.length}件表示`;
+            document.getElementById("totalQsoCount").textContent = qsoLogs.length;
+
+            // Stats update
+            const todayStr = new Date().toISOString().split("T")[0];
+            const todayCount = qsoLogs.filter(l => l.date === todayStr).length;
+            document.getElementById("todayCount").textContent = todayCount;
+
+            // Count Dups
+            const seen = new Set();
+            let dupes = 0;
+            qsoLogs.forEach(l => {
+                const key = `${l.callsign}_${l.band}_${l.mode}`;
+                if (seen.has(key)) dupes++;
+                else seen.add(key);
+            });
+            document.getElementById("dupeCount").textContent = dupes;
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = "";
+                emptyPrompt.classList.remove("hidden");
+                return;
+            }
+
+            emptyPrompt.classList.add("hidden");
+
+            tableBody.innerHTML = filtered.map((log, index) => `
+                <tr class="hover:bg-slate-800/50 transition border-b border-slate-800/40">
+                    <td class="py-2.5 px-3 text-slate-500 font-mono text-[11px]">${filtered.length - index}</td>
+                    <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">${log.date}</td>
+                    <td class="py-2.5 px-3 text-slate-300 font-mono whitespace-nowrap">${log.time}</td>
+                    <td class="py-2.5 px-3 font-bold text-amber-300 tracking-wider font-mono">${escapeHtml(log.callsign)}</td>
+                    <td class="py-2.5 px-3 text-brand-300 font-mono">${log.band}</td>
+                    <td class="py-2.5 px-3 text-cyan-300 font-mono">${log.mode}</td>
+                    <td class="py-2.5 px-3 text-slate-300 font-mono">${log.sentRst} ${log.sentNr}</td>
+                    <td class="py-2.5 px-3 font-semibold text-emerald-300 font-mono">${log.rcvdRst} ${escapeHtml(log.rcvdNr)}</td>
+                    <td class="py-2.5 px-3 text-slate-400 text-[11px] truncate max-w-[120px]">${escapeHtml(log.remarks || '-')}</td>
+                    <td class="py-2.5 px-3 text-right">
+                        <button onclick="openDeleteModal('${log.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition" title="削除">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function resetInputFields() {
+            document.getElementById("inputCallsign").value = "";
+            document.getElementById("inputRcvdNr").value = "";
+            document.getElementById("inputRemarks").value = "";
+            document.getElementById("dupeBadge").classList.add("hidden");
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            })[m]);
+        }
+
+        function exportToCSV() {
+            if (qsoLogs.length === 0) {
+                alert("エクスポートするQSOデータがありません。");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Contest,Date,Time,Callsign,Band,Mode,SentRST,SentNR,RcvdRST,RcvdNR,Remarks\n";
+            qsoLogs.forEach(l => {
+                const row = [
+                    l.id, l.contest, l.date, l.time, l.callsign, l.band, l.mode, l.sentRst, l.sentNr, l.rcvdRst, l.rcvdNr, `"${l.remarks || ''}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Ham_Contest_Log_${new Date().toISOString().split("T")[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToCabrillo() {
+            if (qsoLogs.length === 0) {
+                alert("出力するQSOデータがありません。");
+                return;
+            }
+
+            let text = "START-OF-LOG: 3.0\n";
+            text += "CONTEST: " + (document.getElementById("contestSelect").value) + "\n";
+            text += "CALLSIGN: YOUR-CALLSIGN\n";
+            text += "CATEGORY-OPERATOR: SINGLE-OP\n";
+            text += "SOAPBOX: Generated by Ham Contest Logger v2.5\n";
+
+            qsoLogs.forEach(l => {
+                // Formatting standard JARL Cabrillo line
+                const bandStr = l.band.replace("MHz", "").padStart(5, " ");
+                const modeStr = l.mode.padStart(4, " ");
+                const dateStr = l.date.replace(/-/g, "-");
+                const timeStr = l.time.replace(":", "");
+                
+                text += `QSO: ${bandStr} ${modeStr} ${dateStr} ${timeStr} YOUR-CALL ${l.sentRst} ${l.sentNr.padEnd(6, ' ')} ${l.callsign.padEnd(10, ' ')} ${l.rcvdRst} ${l.rcvdNr}\n`;
+            });
+
+            text += "END-OF-LOG:\n";
+
+            const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `CONTEST_LOG_${document.getElementById("contestSelect").value}.LOG`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function handleGoogleLogin() {
+            if (!auth) {
+                alert("Firebase Authが利用できない環境です。ローカルモードでご利用いただけます。");
+                return;
+            }
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                console.error("Google Auth failed:", err);
+                alert("ログインに失敗しました: " + err.message);
+            }
+        }
+
+        async function handleLogout() {
+            if (auth) {
+                await signOut(auth);
+                currentUser = null;
+                updateAuthUI();
+            }
+        }
+
+        function updateAuthUI() {
+            const loginBtn = document.getElementById("loginBtn");
+            const userProfile = document.getElementById("userProfile");
+            const userEmail = document.getElementById("userEmail");
+            const statusDot = document.getElementById("statusDot");
+            const statusText = document.getElementById("statusText");
+
+            if (currentUser && !currentUser.isAnonymous) {
+                loginBtn.classList.add("hidden");
+                userProfile.classList.remove("hidden");
+                userProfile.classList.add("flex");
+                userEmail.textContent = currentUser.displayName || currentUser.email || currentUser.uid;
+                statusDot.className = "w-2 h-2 rounded-full bg-cyan-400 animate-pulse";
+                statusText.textContent = "クラウド同期中";
+            } else {
+                loginBtn.classList.remove("hidden");
+                userProfile.classList.add("hidden");
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-400";
+                statusText.textContent = "ローカル動作中";
+            }
+        }
+
+        function subscribeCloudLogs() {
+            if (!currentUser || currentUser.isAnonymous || !db) return;
+
+            const qsoCollection = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'qsoLogs');
+            
+            onSnapshot(qsoCollection, (snapshot) => {
+                const cloudLogs = [];
+                snapshot.forEach(docSnap => {
+                    cloudLogs.push(docSnap.data());
+                });
+
+                if (cloudLogs.length > 0) {
+                    // Merge local and cloud avoiding duplicates
+                    const map = new Map();
+                    qsoLogs.forEach(l => map.set(String(l.id), l));
+                    cloudLogs.forEach(l => map.set(String(l.id), l));
+
+                    qsoLogs = Array.from(map.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    saveLocalLogs();
+                    renderLogTable();
+                }
+            }, (error) => {
+                console.warn("Firestore listener error:", error);
+            });
+        }
+    </script>
+</body>
+</html>
