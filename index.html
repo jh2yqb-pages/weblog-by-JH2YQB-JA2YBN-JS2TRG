@@ -362,16 +362,14 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'ham-contest-logger';
 
         // Firebase Configuration Fallback logic
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : {
-                apiKey: "AIzaSyDx9DummyKeyForStandaloneModeOnly",
-                authDomain: "dummy-project.firebaseapp.com",
-                projectId: "dummy-project",
-                storageBucket: "dummy-project.appspot.com",
-                messagingSenderId: "123456789",
-                appId: "1:123456789:web:abc123def456"
-            };
+       const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "weblog-17669.firebaseapp.com",
+  projectId: "weblog-17669",
+  storageBucket: "weblog-17669.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};
 
         try {
             const app = initializeApp(firebaseConfig);
