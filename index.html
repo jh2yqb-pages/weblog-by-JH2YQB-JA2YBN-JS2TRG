@@ -15,18 +15,22 @@
       color: #ffffff !important;
       font-weight: bold;
     }
+    .modal-tab-active {
+      border-bottom: 2px solid #06b6d4;
+      color: #06b6d4;
+      font-weight: bold;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-cyan-500 selection:text-white">
 
   <!-- Header -->
-  <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50">
+  <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center gap-3">
         <span class="text-2xl">📻</span>
         <div>
           <h1 class="text-lg font-bold tracking-wide">WebLog Contest Console</h1>
-          <!-- Sync Status Display -->
           <div class="flex items-center gap-2 text-xs">
             <span id="syncStatus" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium">☁️ 未ログイン (ローカル保存)</span>
           </div>
@@ -89,7 +93,7 @@
           <!-- Callsign -->
           <div class="col-span-2 sm:col-span-2">
             <label class="block text-xs font-semibold text-slate-400 mb-1">相手コールサイン *</label>
-            <input type="text" id="callsign" required placeholder="例: JH2YQB" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-white rounded-lg p-2 font-mono text-base uppercase focus:ring-2 focus:ring-blue-500 outline-none">
+            <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-white rounded-lg p-2 font-mono text-base uppercase focus:ring-2 focus:ring-blue-500 outline-none">
             <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden">⚠️ DUPE（交信済み）</span>
           </div>
 
@@ -154,24 +158,31 @@
     <!-- Log List & Actions -->
     <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-3">
-        <div>
-          <h2 class="text-base font-bold text-slate-100">交信ログ一覧</h2>
-          <p class="text-xs text-slate-400">総QSO数: <span id="qsoCount" class="font-bold text-blue-400">0</span> 件</p>
+        <div class="flex items-center gap-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-100">交信ログ一覧</h2>
+            <p class="text-xs text-slate-400">表示件数: <span id="qsoCount" class="font-bold text-cyan-400">0</span> 件</p>
+          </div>
+          <!-- Contest Filter -->
+          <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-xs">
+            <span class="text-slate-400">表示フィルター:</span>
+            <label class="inline-flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="logFilter" value="current" checked onchange="renderTable()" class="accent-cyan-500"> 選択中のコンテストのみ
+            </label>
+            <label class="inline-flex items-center gap-1 cursor-pointer ml-2">
+              <input type="radio" name="logFilter" value="all" onchange="renderTable()" class="accent-cyan-500"> 全コンテスト
+            </label>
+          </div>
         </div>
 
-        <!-- Import / Export Buttons -->
+        <!-- Action Modals Triggers -->
         <div class="flex flex-wrap gap-2">
-          <!-- File Import -->
-          <input type="file" id="importFileInput" accept=".csv,.txt,.log,.adi,.adif" onchange="importLogFile(event)" class="hidden">
-          <button onclick="document.getElementById('importFileInput').click()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">📥 ログ取り込み</button>
-          
-          <!-- Export Buttons -->
-          <button onclick="exportCSV()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.CSV 出力</button>
-          <button onclick="exportLOG()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.LOG 出力</button>
-          <button onclick="exportTXT()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.TXT 出力</button>
-          <button onclick="exportJarlNew()" class="px-3 py-1.5 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold transition shadow-sm">JARL推奨(新様式)</button>
-          <button onclick="exportJarlOld()" class="px-3 py-1.5 text-xs bg-teal-800 hover:bg-teal-700 text-white rounded-lg font-bold transition shadow-sm">JARL推奨(旧様式)</button>
-          
+          <button onclick="openImportModal()" class="px-3.5 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg font-bold transition flex items-center gap-1.5">
+            <span>🩵</span> ログデータのインポート
+          </button>
+          <button onclick="openExportModal()" class="px-4 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold transition shadow-md flex items-center gap-1.5">
+            <span>📤</span> ログデータ・サマリー出力
+          </button>
           <button onclick="clearAllLogs()" class="px-3 py-1.5 text-xs bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-800/80 rounded-lg font-medium transition">全消去</button>
         </div>
       </div>
@@ -179,7 +190,7 @@
       <!-- Log Table -->
       <div class="overflow-x-auto border border-slate-800 rounded-xl">
         <table class="w-full text-left text-xs border-collapse">
-          <thead class="bg-slate-800 border-b border-slate-700 text-slate-300 uppercase">
+          <thead class="bg-slate-800/80 border-b border-slate-700 text-slate-300 uppercase">
             <tr>
               <th class="p-2.5">日時 (UTC)</th>
               <th class="p-2.5">Callsign</th>
@@ -201,6 +212,126 @@
     </section>
 
   </main>
+
+  <!-- ==================== MODAL 1: IMPORT MODAL ==================== -->
+  <div id="importModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-2xl p-6 shadow-2xl relative text-slate-100">
+      <button onclick="closeImportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">✕</button>
+      
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-cyan-400 text-xl">🩵</span>
+        <h3 class="text-lg font-bold text-white">ログデータのインポート</h3>
+      </div>
+      <p class="text-xs text-slate-400 mb-5">JARL電子ログ（v2.0）、ADIF、またはCSV/TXTファイルの一括読み込みに対応しています。</p>
+
+      <!-- File Select -->
+      <div class="mb-4">
+        <label class="block text-xs text-slate-300 mb-1.5">ファイルから選択 (.txt / .adi / .csv / .log)</label>
+        <div class="flex items-center border border-slate-700 bg-slate-950 rounded-lg overflow-hidden p-1">
+          <label class="bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs px-4 py-2 rounded font-bold cursor-pointer transition">
+            ファイルを選択
+            <input type="file" id="modalFileInput" accept=".txt,.adi,.adif,.csv,.log" onchange="onModalFileSelected(event)" class="hidden">
+          </label>
+          <span id="modalFileName" class="text-xs text-slate-400 px-3 truncate">選択されていません</span>
+        </div>
+      </div>
+
+      <!-- Textarea Paste -->
+      <div class="mb-4">
+        <label class="block text-xs text-slate-300 mb-1.5">またはテキストを直接貼り付け</label>
+        <textarea id="modalImportText" rows="6" placeholder="JARLフォーマットまたはADIF形式、CSVデータを貼り付け" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-xs font-mono text-slate-200 outline-none focus:border-cyan-500"></textarea>
+      </div>
+
+      <!-- Mode Radio -->
+      <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex items-center gap-6 mb-6 text-xs text-slate-300">
+        <span>取り込みモード:</span>
+        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+          <input type="radio" name="importMode" value="append" checked class="accent-cyan-500"> 既存のログに追記
+        </label>
+        <label class="inline-flex items-center gap-1.5 cursor-pointer">
+          <input type="radio" name="importMode" value="overwrite" class="accent-cyan-500"> 既存のログを上書き
+        </label>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex justify-end gap-3">
+        <button onclick="closeImportModal()" class="px-5 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-medium transition">キャンセル</button>
+        <button onclick="executeImport()" class="px-6 py-2 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold shadow-md transition">インポート実行</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: EXPORT / SUMMARY MODAL ==================== -->
+  <div id="exportModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-3xl p-6 shadow-2xl relative text-slate-100 max-h-[92vh] flex flex-col">
+      <button onclick="closeExportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">✕</button>
+      
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-cyan-400 text-xl">📤</span>
+        <h3 class="text-lg font-bold text-white">ログデータ・サマリー出力</h3>
+      </div>
+
+      <!-- Format Tabs -->
+      <div class="flex border-b border-slate-800 mb-4 text-xs font-bold text-slate-400">
+        <button onclick="switchExportTab('jarl')" id="exportTab-jarl" class="px-4 py-2.5 modal-tab-active transition">JARL / .log 形式</button>
+        <button onclick="switchExportTab('adif')" id="exportTab-adif" class="px-4 py-2.5 transition hover:text-slate-200">ADIF形式 (.adi)</button>
+        <button onclick="switchExportTab('csv')" id="exportTab-csv" class="px-4 py-2.5 transition hover:text-slate-200">CSV / TXT 形式</button>
+      </div>
+
+      <!-- Options Row (Sort Order & File Ext) -->
+      <div class="bg-slate-950 border border-slate-800 p-3 rounded-lg flex flex-wrap items-center justify-between gap-3 mb-4 text-xs">
+        <div class="flex items-center gap-4">
+          <span class="text-slate-400">並び順:</span>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="exportSort" value="time" checked onchange="updateExportPreview()" class="accent-cyan-500"> 日時順
+          </label>
+          <label class="inline-flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="exportSort" value="freq" onchange="updateExportPreview()" class="accent-cyan-500"> 周波数順
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">保存拡張子:</span>
+          <select id="exportExtSelect" onchange="updateExportPreview()" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 font-mono outline-none">
+            <option value=".log">.log</option>
+            <option value=".txt">.txt</option>
+            <option value=".adi">.adi</option>
+            <option value=".csv">.csv</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Input Fields for JARL Summary -->
+      <div id="jarlInputs" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">自局コールサイン (CALLSIGN)</label>
+          <input type="text" id="jarlCallsign" placeholder="JA1ZAA" oninput="updateExportPreview()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 font-mono outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">参加種目 (CATEGORY)</label>
+          <input type="text" id="jarlCategory" placeholder="一般種目 シングルオペ" oninput="updateExportPreview()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">氏名 / 連絡先 (NAME)</label>
+          <input type="text" id="jarlName" placeholder="山田 太郎" oninput="updateExportPreview()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 outline-none focus:border-cyan-500">
+        </div>
+      </div>
+
+      <!-- Preview Textarea (Matches Exactly What Gets Saved) -->
+      <div class="flex-1 min-h-[180px] mb-4">
+        <textarea id="exportPreviewText" readonly class="w-full h-full min-h-[180px] bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs font-mono text-emerald-400 outline-none resize-none leading-relaxed"></textarea>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+        <button onclick="copyExportToClipboard()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition flex items-center gap-1.5">
+          📋 クリップボードにコピー
+        </button>
+        <button onclick="downloadExportFile()" class="px-6 py-2 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold shadow-md transition flex items-center gap-1.5">
+          📥 ファイル保存
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // --- 1. FULLY VERIFIED CONTEST DATABASE ---
@@ -328,9 +459,10 @@
       console.warn("Firebase Init Error:", e);
     }
 
-    const LOCAL_STORAGE_KEY = "weblog_qso_records_v11";
+    const LOCAL_STORAGE_KEY = "weblog_qso_records_v12";
     let qsoLogs = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
     let currentArea = "national";
+    let activeExportTab = "jarl"; // 'jarl', 'adif', 'csv'
 
     // --- 3. INITIALIZATION ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -387,6 +519,7 @@
         hintText.textContent = "RS(T) + コンテスト規定コード";
       }
       checkDupe();
+      renderTable();
     }
 
     function checkDupe() {
@@ -432,14 +565,12 @@
         area: currentArea
       };
 
-      // 1. Local Immediate Save
       qsoLogs.unshift(qsoData);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
       renderTable();
       resetForm();
       showAlert("QSOを登録しました (ローカル即時保存)", "success");
 
-      // 2. Cloud Sync
       if (currentUser && db) {
         updateSyncStatus("☁️ クラウド保存中...", "syncing");
         db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(qsoData.id)
@@ -447,7 +578,7 @@
           .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
           .catch(err => {
             console.error("Cloud Save Error:", err);
-            updateSyncStatus("⚠️ クラウド保存失敗 (ローカルのみ)", "error");
+            updateSyncStatus("⚠️ クラウド保存失敗", "error");
           });
       }
     }
@@ -456,260 +587,3 @@
       const targetIdStr = String(id);
       
       qsoLogs = qsoLogs.filter(log => String(log.id) !== targetIdStr);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
-      renderTable();
-      showAlert("ログを削除しました", "info");
-
-      if (currentUser && db) {
-        updateSyncStatus("☁️ クラウド削除中...", "syncing");
-        db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(targetIdStr)
-          .delete()
-          .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
-          .catch(err => {
-            console.error("Cloud Delete Error:", err);
-            updateSyncStatus("⚠️ クラウド削除失敗", "error");
-          });
-      }
-    }
-
-    function clearAllLogs() {
-      if (!confirm("本当に全ての交信ログを消去しますか？")) return;
-
-      qsoLogs = [];
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
-      renderTable();
-      showAlert("全ログを消去しました", "info");
-    }
-
-    function resetForm() {
-      document.getElementById('callsign').value = "";
-      document.getElementById('rstSent').value = "";
-      document.getElementById('rstRcvd').value = "";
-      document.getElementById('dupeWarning').classList.add('hidden');
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById('logTableBody');
-      document.getElementById('qsoCount').textContent = qsoLogs.length;
-
-      if (qsoLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 font-sans">ログデータがありません</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = qsoLogs.map(log => {
-        const dt = new Date(log.timestamp);
-        const timeStr = `${dt.getUTCMonth()+1}/${dt.getUTCDate()} ${String(dt.getUTCHours()).padStart(2,'0')}:${String(dt.getUTCMinutes()).padStart(2,'0')}`;
-        
-        return `
-          <tr class="hover:bg-slate-800/60 border-b border-slate-800 transition">
-            <td class="p-2.5 text-slate-400">${timeStr}</td>
-            <td class="p-2.5 font-bold text-blue-300">${log.callsign}</td>
-            <td class="p-2.5 text-slate-200">${log.band}</td>
-            <td class="p-2.5"><span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 text-[11px] font-semibold">${log.mode}</span></td>
-            <td class="p-2.5 text-slate-300">${log.rstSent}</td>
-            <td class="p-2.5 text-slate-300">${log.rstRcvd}</td>
-            <td class="p-2.5 text-slate-400 truncate max-w-[140px]">${log.contestName}</td>
-            <td class="p-2.5 text-right font-sans">
-              <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-300 font-medium text-xs">削除</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // --- 5. EXPORT & IMPORT FUNCTIONS ---
-    function exportCSV() {
-      if (qsoLogs.length === 0) return alert("出力するデータがありません");
-      let csv = "ID,Timestamp_UTC,Callsign,Band,Mode,Sent,Rcvd,Contest\n";
-      qsoLogs.forEach(l => {
-        csv += `"${l.id}","${l.timestamp}","${l.callsign}","${l.band}","${l.mode}","${l.rstSent}","${l.rstRcvd}","${l.contestName}"\n`;
-      });
-      downloadFile(csv, `qso_log_${Date.now()}.csv`, "text/csv");
-    }
-
-    function exportLOG() {
-      if (qsoLogs.length === 0) return alert("出力するデータがありません");
-      let txt = "DATE(UTC) TIME BAND MODE CALLSIGN SENT RCVD CONTEST\n";
-      qsoLogs.forEach(l => {
-        const dt = new Date(l.timestamp);
-        const dateStr = dt.toISOString().slice(0,10);
-        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
-        txt += `${dateStr} ${timeStr} ${l.band.padEnd(7)} ${l.mode.padEnd(5)} ${l.callsign.padEnd(10)} ${l.rstSent.padEnd(6)} ${l.rstRcvd.padEnd(6)} ${l.contestName}\n`;
-      });
-      downloadFile(txt, `qso_log_${Date.now()}.log`, "text/plain");
-    }
-
-    function exportTXT() {
-      exportLOG(); // .txt for generic text output
-    }
-
-    function exportJarlNew() {
-      if (qsoLogs.length === 0) return alert("出力するデータがありません");
-      let out = "<SUMMARYSHEET R1.0>\n";
-      out += "CONTEST-NAME: ALL-JA\n";
-      out += "CALLSIGN: YOUR-CALL\n";
-      out += "CATEGORY: MULTI-OP\n";
-      out += "<LOGSHEET R1.0>\n";
-      out += "DATE TIME BAND MODE CALLSIGN SENT RCVD\n";
-      
-      qsoLogs.forEach(l => {
-        const dt = new Date(l.timestamp);
-        const dateStr = dt.toISOString().slice(0,10);
-        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + String(dt.getUTCMinutes()).padStart(2,'0');
-        out += `${dateStr} ${timeStr} ${l.band.padEnd(6)} ${l.mode.padEnd(4)} ${l.callsign.padEnd(10)} ${l.rstSent.padEnd(6)} ${l.rstRcvd}\n`;
-      });
-      out += "<END-OF-LOG>\n";
-
-      downloadFile(out, `jarl_new_log_${Date.now()}.txt`, "text/plain");
-    }
-
-    function exportJarlOld() {
-      if (qsoLogs.length === 0) return alert("出力するデータがありません");
-      let out = "■サマリーシート (JARL旧電子様式)\n";
-      out += "コンテスト名: JARL Contest\n";
-      out += "コールサイン: YOUR-CALL\n";
-      out += "--------------------------------------------------\n";
-      out += "■QSOログ\n";
-      out += "DATE     TIME  FREQ  MODE CALLSIGN      SENT   RCVD\n";
-
-      qsoLogs.forEach(l => {
-        const dt = new Date(l.timestamp);
-        const dateStr = dt.toISOString().slice(2,10).replace(/-/g, '/');
-        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
-        out += `${dateStr} ${timeStr} ${l.band.padEnd(5)} ${l.mode.padEnd(4)} ${l.callsign.padEnd(13)} ${l.rstSent.padEnd(6)} ${l.rstRcvd}\n`;
-      });
-
-      downloadFile(out, `jarl_old_log_${Date.now()}.txt`, "text/plain");
-    }
-
-    function importLogFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result;
-        try {
-          let count = 0;
-          const lines = text.split('\n');
-
-          lines.forEach(line => {
-            const clean = line.trim();
-            if (!clean || clean.startsWith('#') || clean.startsWith('<') || clean.startsWith('DATE') || clean.startsWith('ID,')) return;
-
-            // CSV Parsing
-            if (clean.includes(',')) {
-              const cols = clean.split(',').map(s => s.replace(/"/g, '').trim());
-              if (cols.length >= 4) {
-                const call = cols[2] || cols[0];
-                if (call && call.length >= 3) {
-                  qsoLogs.unshift({
-                    id: String(Date.now() + Math.floor(Math.random() * 1000)),
-                    timestamp: new Date().toISOString(),
-                    callsign: call.toUpperCase(),
-                    band: cols[3] || "7MHz",
-                    mode: cols[4] || "SSB",
-                    rstSent: cols[5] || "59",
-                    rstRcvd: cols[6] || "59",
-                    contestId: "imported",
-                    contestName: cols[7] || "インポートログ",
-                    area: currentArea
-                  });
-                  count++;
-                }
-              }
-            } else {
-              // Space delimited (.log / .txt)
-              const parts = clean.split(/\s+/);
-              if (parts.length >= 4) {
-                const call = parts.find(p => /^[A-Z0-9]{3,8}\/?[A-Z0-9]*$/i.test(p));
-                if (call) {
-                  qsoLogs.unshift({
-                    id: String(Date.now() + Math.floor(Math.random() * 1000)),
-                    timestamp: new Date().toISOString(),
-                    callsign: call.toUpperCase(),
-                    band: "7MHz",
-                    mode: "SSB",
-                    rstSent: "59",
-                    rstRcvd: "59",
-                    contestId: "imported",
-                    contestName: "インポートログ",
-                    area: currentArea
-                  });
-                  count++;
-                }
-              }
-            }
-          });
-
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
-          renderTable();
-          showAlert(`${count} 件のログを取り込みました！`, "success");
-        } catch (err) {
-          showAlert("ファイルの読み込みに失敗しました", "danger");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function downloadFile(content, fileName, mimeType) {
-      const blob = new Blob([content], { type: mimeType });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = fileName;
-      a.click();
-    }
-
-    // --- 6. AUTHENTICATION & UTILS ---
-    function initAuth() {
-      if (!auth) return;
-
-      auth.onAuthStateChanged(user => {
-        currentUser = user;
-        const userInfo = document.getElementById('userInfo');
-        const userName = document.getElementById('userName');
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        if (user) {
-          userName.textContent = user.displayName || user.email;
-          userInfo.classList.remove('hidden');
-          loginBtn.classList.add('hidden');
-          logoutBtn.classList.remove('hidden');
-          updateSyncStatus("☁️ クラウド同期完了", "success");
-        } else {
-          userInfo.classList.add('hidden');
-          loginBtn.classList.remove('hidden');
-          logoutBtn.classList.add('hidden');
-          updateSyncStatus("☁️ 未ログイン (ローカル保存)", "normal");
-        }
-      });
-
-      document.getElementById('loginBtn').addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-          showAlert(`ログイン失敗: ${err.message}`, "danger");
-        });
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        auth.signOut();
-      });
-    }
-
-    function showAlert(msg, type = "info") {
-      const box = document.getElementById('alertBox');
-      box.textContent = msg;
-      box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md border ";
-      
-      if (type === "success") box.className += "bg-emerald-950/90 text-emerald-200 border-emerald-800";
-      else if (type === "danger") box.className += "bg-red-950/90 text-red-200 border-red-800";
-      else box.className += "bg-blue-950/90 text-blue-200 border-blue-800";
-
-      box.classList.remove('hidden');
-      setTimeout(() => box.classList.add('hidden'), 3500);
-    }
-  </script>
-</body>
-</html>
