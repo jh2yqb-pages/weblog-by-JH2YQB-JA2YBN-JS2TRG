@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,19 +17,25 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen">
 
   <!-- Header -->
-  <header class="bg-slate-900 text-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+  <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
       <div class="flex items-center gap-3">
         <span class="text-2xl">📻</span>
-        <h1 class="text-xl font-bold tracking-wide">WebLog Contest Console</h1>
+        <div>
+          <h1 class="text-lg font-bold tracking-wide">WebLog Contest Console</h1>
+          <!-- Sync Status Display -->
+          <div class="flex items-center gap-2 text-xs">
+            <span id="syncStatus" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium">☁️ 未ログイン (ローカル保存)</span>
+          </div>
+        </div>
       </div>
       <div id="authStatus" class="flex items-center gap-3 text-sm">
-        <span id="userInfo" class="hidden text-slate-300">ログイン中: <strong id="userName" class="text-white"></strong></span>
-        <button id="loginBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded font-medium transition">Googleでログイン</button>
-        <button id="logoutBtn" class="hidden bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">ログアウト</button>
+        <span id="userInfo" class="hidden text-slate-300">ユーザー: <strong id="userName" class="text-white"></strong></span>
+        <button id="loginBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition">Googleでログイン</button>
+        <button id="logoutBtn" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">ログアウト</button>
       </div>
     </div>
   </header>
@@ -38,59 +44,59 @@
   <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
     <!-- Alert Box -->
-    <div id="alertBox" class="hidden p-4 rounded-lg text-sm font-medium transition-all shadow"></div>
+    <div id="alertBox" class="hidden p-4 rounded-xl text-sm font-medium transition-all shadow-md"></div>
 
     <!-- Area & Contest Selector Panel -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">1. エリア・コンテストの選択</h2>
+    <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. エリア・コンテストの選択</h2>
       
       <!-- Area Tabs -->
       <div class="flex flex-wrap gap-1.5 mb-4" id="areaTabs">
-        <button onclick="selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200 active-tab">全国</button>
-        <button onclick="selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">1エリア (関東)</button>
-        <button onclick="selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">2エリア (東海)</button>
-        <button onclick="selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">3エリア (関西)</button>
-        <button onclick="selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">4エリア (中国)</button>
-        <button onclick="selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">5エリア (四国)</button>
-        <button onclick="selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">6エリア (九州)</button>
-        <button onclick="selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">7エリア (東北)</button>
-        <button onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">8エリア (北海道)</button>
-        <button onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">9エリア (北陸)</button>
-        <button onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">0エリア (信越)</button>
-        <button onclick="selectArea('dx')" id="tab-dx" class="area-tab px-3 py-1.5 text-sm rounded-md bg-slate-100 hover:bg-slate-200">DX (海外)</button>
+        <button onclick="selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition active-tab">全国</button>
+        <button onclick="selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">1エリア (関東)</button>
+        <button onclick="selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">2エリア (東海)</button>
+        <button onclick="selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">3エリア (関西)</button>
+        <button onclick="selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">4エリア (中国)</button>
+        <button onclick="selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">5エリア (四国)</button>
+        <button onclick="selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">6エリア (九州)</button>
+        <button onclick="selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">7エリア (東北)</button>
+        <button onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">8エリア (北海道)</button>
+        <button onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">9エリア (北陸)</button>
+        <button onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">0エリア (信越)</button>
+        <button onclick="selectArea('dx')" id="tab-dx" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">DX (海外)</button>
       </div>
 
       <!-- Contest Dropdown & Hint -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
         <div class="md:col-span-2">
-          <label for="contestSelect" class="block text-xs font-semibold text-slate-600 mb-1">対象コンテスト</label>
-          <select id="contestSelect" onchange="onContestChange()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+          <label for="contestSelect" class="block text-xs font-semibold text-slate-400 mb-1">対象コンテスト</label>
+          <select id="contestSelect" onchange="onContestChange()" class="w-full border border-slate-700 bg-slate-800 rounded-lg p-2.5 text-sm text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none">
           </select>
         </div>
-        <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-900">
-          <span class="font-bold block mb-0.5">コンテストナンバー形式:</span>
+        <div class="bg-blue-950/60 border border-blue-800/80 p-3 rounded-lg text-xs text-blue-200">
+          <span class="font-bold block mb-0.5 text-blue-300">コンテストナンバー形式:</span>
           <span id="exchangeHintText">RS(T) + 市郡/都道府県ナンバー</span>
         </div>
       </div>
     </section>
 
     <!-- Logging Form -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-      <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">2. QSOデータ入力</h2>
+    <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. QSOデータ入力</h2>
       <form id="qsoForm" onsubmit="handleSaveQso(event)" class="space-y-4">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
           
           <!-- Callsign -->
           <div class="col-span-2 sm:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">相手コールサイン *</label>
-            <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-base uppercase focus:ring-2 focus:ring-blue-500 outline-none">
-            <span id="dupeWarning" class="text-xs text-red-600 font-bold hidden">⚠️ DUPE（交信済み）</span>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">相手コールサイン *</label>
+            <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-white rounded-lg p-2 font-mono text-base uppercase focus:ring-2 focus:ring-blue-500 outline-none">
+            <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden">⚠️ DUPE（交信済み）</span>
           </div>
 
           <!-- Band -->
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">周波数 (Band)</label>
-            <select id="band" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">周波数 (Band)</label>
+            <select id="band" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
               <option value="1.9MHz">1.9 MHz</option>
               <option value="3.5MHz">3.5 MHz</option>
               <option value="7MHz" selected>7 MHz</option>
@@ -107,8 +113,8 @@
 
           <!-- Mode -->
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">モード (Mode)</label>
-            <select id="mode" class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">モード (Mode)</label>
+            <select id="mode" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
               <option value="CW">CW</option>
               <option value="SSB" selected>SSB</option>
               <option value="FM">FM</option>
@@ -126,44 +132,54 @@
 
           <!-- Sent Exchange -->
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">送信ナンバー (Sent)</label>
-            <input type="text" id="rstSent" placeholder="5959" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">送信ナンバー (Sent)</label>
+            <input type="text" id="rstSent" placeholder="5959" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
 
           <!-- Rcvd Exchange -->
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">受信ナンバー (Rcvd)</label>
-            <input type="text" id="rstRcvd" placeholder="5920M" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            <label class="block text-xs font-semibold text-slate-400 mb-1">受信ナンバー (Rcvd)</label>
+            <input type="text" id="rstRcvd" placeholder="5920M" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
           </div>
 
         </div>
 
         <div class="flex gap-3 justify-end pt-2">
-          <button type="button" onclick="resetForm()" class="px-4 py-2 text-sm bg-slate-200 hover:bg-slate-300 rounded-lg font-medium transition">クリア</button>
-          <button type="submit" class="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shadow transition">QSO登録 (保存)</button>
+          <button type="button" onclick="resetForm()" class="px-4 py-2 text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-medium transition border border-slate-700">クリア</button>
+          <button type="submit" class="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold shadow-md transition">QSO登録 (保存)</button>
         </div>
       </form>
     </section>
 
     <!-- Log List & Actions -->
-    <section class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 space-y-4">
+    <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800 space-y-4">
       <div class="flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="text-base font-bold text-slate-800">交信ログ一覧</h2>
-          <p class="text-xs text-slate-500">総QSO数: <span id="qsoCount" class="font-bold text-blue-600">0</span> 件</p>
+          <h2 class="text-base font-bold text-slate-100">交信ログ一覧</h2>
+          <p class="text-xs text-slate-400">総QSO数: <span id="qsoCount" class="font-bold text-blue-400">0</span> 件</p>
         </div>
 
+        <!-- Import / Export Buttons -->
         <div class="flex flex-wrap gap-2">
-          <button onclick="exportCSV()" class="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-600 text-white rounded font-medium">CSV出力</button>
-          <button onclick="exportCabrillo()" class="px-3 py-1.5 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded font-medium">Cabrilloログ生成</button>
-          <button onclick="clearAllLogs()" class="px-3 py-1.5 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded font-medium">全消去</button>
+          <!-- File Import -->
+          <input type="file" id="importFileInput" accept=".csv,.txt,.log,.adi,.adif" onchange="importLogFile(event)" class="hidden">
+          <button onclick="document.getElementById('importFileInput').click()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">📥 ログ取り込み</button>
+          
+          <!-- Export Buttons -->
+          <button onclick="exportCSV()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.CSV 出力</button>
+          <button onclick="exportLOG()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.LOG 出力</button>
+          <button onclick="exportTXT()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-medium transition">.TXT 出力</button>
+          <button onclick="exportJarlNew()" class="px-3 py-1.5 text-xs bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-bold transition shadow-sm">JARL推奨(新様式)</button>
+          <button onclick="exportJarlOld()" class="px-3 py-1.5 text-xs bg-teal-800 hover:bg-teal-700 text-white rounded-lg font-bold transition shadow-sm">JARL推奨(旧様式)</button>
+          
+          <button onclick="clearAllLogs()" class="px-3 py-1.5 text-xs bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-800/80 rounded-lg font-medium transition">全消去</button>
         </div>
       </div>
 
       <!-- Log Table -->
-      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+      <div class="overflow-x-auto border border-slate-800 rounded-xl">
         <table class="w-full text-left text-xs border-collapse">
-          <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase">
+          <thead class="bg-slate-800 border-b border-slate-700 text-slate-300 uppercase">
             <tr>
               <th class="p-2.5">日時 (UTC)</th>
               <th class="p-2.5">Callsign</th>
@@ -175,9 +191,9 @@
               <th class="p-2.5 text-right">操作</th>
             </tr>
           </thead>
-          <tbody id="logTableBody" class="divide-y divide-slate-100 font-mono">
+          <tbody id="logTableBody" class="divide-y divide-slate-800 font-mono text-slate-200">
             <tr>
-              <td colspan="8" class="p-4 text-center text-slate-400 font-sans">ログデータがありません</td>
+              <td colspan="8" class="p-4 text-center text-slate-500 font-sans">ログデータがありません</td>
             </tr>
           </tbody>
         </table>
@@ -312,7 +328,7 @@
       console.warn("Firebase Init Error:", e);
     }
 
-    const LOCAL_STORAGE_KEY = "weblog_qso_records_v10";
+    const LOCAL_STORAGE_KEY = "weblog_qso_records_v11";
     let qsoLogs = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
     let currentArea = "national";
 
@@ -322,6 +338,22 @@
       renderTable();
       initAuth();
     });
+
+    function updateSyncStatus(status, type = "normal") {
+      const syncEl = document.getElementById('syncStatus');
+      if (!syncEl) return;
+      
+      syncEl.textContent = status;
+      if (type === "syncing") {
+        syncEl.className = "px-2 py-0.5 rounded-full bg-amber-900/80 text-amber-200 text-xs font-medium animate-pulse";
+      } else if (type === "success") {
+        syncEl.className = "px-2 py-0.5 rounded-full bg-emerald-900/80 text-emerald-200 text-xs font-medium";
+      } else if (type === "error") {
+        syncEl.className = "px-2 py-0.5 rounded-full bg-red-900/80 text-red-200 text-xs font-medium";
+      } else {
+        syncEl.className = "px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 text-xs font-medium";
+      }
+    }
 
     function selectArea(areaKey) {
       currentArea = areaKey;
@@ -400,16 +432,23 @@
         area: currentArea
       };
 
+      // 1. Local Immediate Save
       qsoLogs.unshift(qsoData);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
       renderTable();
       resetForm();
-      showAlert("QSOを登録しました (ローカル即時保存完了)", "success");
+      showAlert("QSOを登録しました (ローカル即時保存)", "success");
 
+      // 2. Cloud Sync
       if (currentUser && db) {
+        updateSyncStatus("☁️ クラウド保存中...", "syncing");
         db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(qsoData.id)
           .set(qsoData)
-          .catch(err => console.error("Cloud Save Error:", err));
+          .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
+          .catch(err => {
+            console.error("Cloud Save Error:", err);
+            updateSyncStatus("⚠️ クラウド保存失敗 (ローカルのみ)", "error");
+          });
       }
     }
 
@@ -422,9 +461,14 @@
       showAlert("ログを削除しました", "info");
 
       if (currentUser && db) {
+        updateSyncStatus("☁️ クラウド削除中...", "syncing");
         db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(targetIdStr)
           .delete()
-          .catch(err => console.error("Cloud Delete Error:", err));
+          .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
+          .catch(err => {
+            console.error("Cloud Delete Error:", err);
+            updateSyncStatus("⚠️ クラウド削除失敗", "error");
+          });
       }
     }
 
@@ -449,7 +493,7 @@
       document.getElementById('qsoCount').textContent = qsoLogs.length;
 
       if (qsoLogs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400 font-sans">ログデータがありません</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-500 font-sans">ログデータがありません</td></tr>`;
         return;
       }
 
@@ -458,48 +502,155 @@
         const timeStr = `${dt.getUTCMonth()+1}/${dt.getUTCDate()} ${String(dt.getUTCHours()).padStart(2,'0')}:${String(dt.getUTCMinutes()).padStart(2,'0')}`;
         
         return `
-          <tr class="hover:bg-slate-50 border-b border-slate-100">
-            <td class="p-2.5 text-slate-500">${timeStr}</td>
-            <td class="p-2.5 font-bold text-blue-900">${log.callsign}</td>
-            <td class="p-2.5">${log.band}</td>
-            <td class="p-2.5"><span class="bg-slate-200 px-1.5 py-0.5 rounded text-[11px] font-semibold">${log.mode}</span></td>
-            <td class="p-2.5 text-slate-600">${log.rstSent}</td>
-            <td class="p-2.5 text-slate-600">${log.rstRcvd}</td>
-            <td class="p-2.5 text-slate-500 truncate max-w-[140px]">${log.contestName}</td>
+          <tr class="hover:bg-slate-800/60 border-b border-slate-800 transition">
+            <td class="p-2.5 text-slate-400">${timeStr}</td>
+            <td class="p-2.5 font-bold text-blue-300">${log.callsign}</td>
+            <td class="p-2.5 text-slate-200">${log.band}</td>
+            <td class="p-2.5"><span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 text-[11px] font-semibold">${log.mode}</span></td>
+            <td class="p-2.5 text-slate-300">${log.rstSent}</td>
+            <td class="p-2.5 text-slate-300">${log.rstRcvd}</td>
+            <td class="p-2.5 text-slate-400 truncate max-w-[140px]">${log.contestName}</td>
             <td class="p-2.5 text-right font-sans">
-              <button onclick="deleteLog('${log.id}')" class="text-red-500 hover:text-red-700 font-medium text-xs">削除</button>
+              <button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-300 font-medium text-xs">削除</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
+    // --- 5. EXPORT & IMPORT FUNCTIONS ---
     function exportCSV() {
       if (qsoLogs.length === 0) return alert("出力するデータがありません");
-      
       let csv = "ID,Timestamp_UTC,Callsign,Band,Mode,Sent,Rcvd,Contest\n";
       qsoLogs.forEach(l => {
         csv += `"${l.id}","${l.timestamp}","${l.callsign}","${l.band}","${l.mode}","${l.rstSent}","${l.rstRcvd}","${l.contestName}"\n`;
       });
-
       downloadFile(csv, `qso_log_${Date.now()}.csv`, "text/csv");
     }
 
-    function exportCabrillo() {
+    function exportLOG() {
       if (qsoLogs.length === 0) return alert("出力するデータがありません");
-
-      let cab = "START-OF-LOG: 3.0\nCONTEST: JARL-CONTEST\nCALLSIGN: YOUR-CALLSIGN\n";
+      let txt = "DATE(UTC) TIME BAND MODE CALLSIGN SENT RCVD CONTEST\n";
       qsoLogs.forEach(l => {
         const dt = new Date(l.timestamp);
-        const dateStr = dt.toISOString().slice(0,10).replace(/-/g, '');
-        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + String(dt.getUTCMinutes()).padStart(2,'0');
-        const freq = l.band.replace('MHz', '000').replace('.', '');
-        
-        cab += `QSO: ${freq.padStart(5)} ${l.mode.padEnd(2)} ${dateStr} ${timeStr} YOUR-CALL ${l.rstSent.padEnd(6)} ${l.callsign.padEnd(10)} ${l.rstRcvd}\n`;
+        const dateStr = dt.toISOString().slice(0,10);
+        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
+        txt += `${dateStr} ${timeStr} ${l.band.padEnd(7)} ${l.mode.padEnd(5)} ${l.callsign.padEnd(10)} ${l.rstSent.padEnd(6)} ${l.rstRcvd.padEnd(6)} ${l.contestName}\n`;
       });
-      cab += "END-OF-LOG:\n";
+      downloadFile(txt, `qso_log_${Date.now()}.log`, "text/plain");
+    }
 
-      downloadFile(cab, `cabrillo_log_${Date.now()}.txt`, "text/plain");
+    function exportTXT() {
+      exportLOG(); // .txt for generic text output
+    }
+
+    function exportJarlNew() {
+      if (qsoLogs.length === 0) return alert("出力するデータがありません");
+      let out = "<SUMMARYSHEET R1.0>\n";
+      out += "CONTEST-NAME: ALL-JA\n";
+      out += "CALLSIGN: YOUR-CALL\n";
+      out += "CATEGORY: MULTI-OP\n";
+      out += "<LOGSHEET R1.0>\n";
+      out += "DATE TIME BAND MODE CALLSIGN SENT RCVD\n";
+      
+      qsoLogs.forEach(l => {
+        const dt = new Date(l.timestamp);
+        const dateStr = dt.toISOString().slice(0,10);
+        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + String(dt.getUTCMinutes()).padStart(2,'0');
+        out += `${dateStr} ${timeStr} ${l.band.padEnd(6)} ${l.mode.padEnd(4)} ${l.callsign.padEnd(10)} ${l.rstSent.padEnd(6)} ${l.rstRcvd}\n`;
+      });
+      out += "<END-OF-LOG>\n";
+
+      downloadFile(out, `jarl_new_log_${Date.now()}.txt`, "text/plain");
+    }
+
+    function exportJarlOld() {
+      if (qsoLogs.length === 0) return alert("出力するデータがありません");
+      let out = "■サマリーシート (JARL旧電子様式)\n";
+      out += "コンテスト名: JARL Contest\n";
+      out += "コールサイン: YOUR-CALL\n";
+      out += "--------------------------------------------------\n";
+      out += "■QSOログ\n";
+      out += "DATE     TIME  FREQ  MODE CALLSIGN      SENT   RCVD\n";
+
+      qsoLogs.forEach(l => {
+        const dt = new Date(l.timestamp);
+        const dateStr = dt.toISOString().slice(2,10).replace(/-/g, '/');
+        const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
+        out += `${dateStr} ${timeStr} ${l.band.padEnd(5)} ${l.mode.padEnd(4)} ${l.callsign.padEnd(13)} ${l.rstSent.padEnd(6)} ${l.rstRcvd}\n`;
+      });
+
+      downloadFile(out, `jarl_old_log_${Date.now()}.txt`, "text/plain");
+    }
+
+    function importLogFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        try {
+          let count = 0;
+          const lines = text.split('\n');
+
+          lines.forEach(line => {
+            const clean = line.trim();
+            if (!clean || clean.startsWith('#') || clean.startsWith('<') || clean.startsWith('DATE') || clean.startsWith('ID,')) return;
+
+            // CSV Parsing
+            if (clean.includes(',')) {
+              const cols = clean.split(',').map(s => s.replace(/"/g, '').trim());
+              if (cols.length >= 4) {
+                const call = cols[2] || cols[0];
+                if (call && call.length >= 3) {
+                  qsoLogs.unshift({
+                    id: String(Date.now() + Math.floor(Math.random() * 1000)),
+                    timestamp: new Date().toISOString(),
+                    callsign: call.toUpperCase(),
+                    band: cols[3] || "7MHz",
+                    mode: cols[4] || "SSB",
+                    rstSent: cols[5] || "59",
+                    rstRcvd: cols[6] || "59",
+                    contestId: "imported",
+                    contestName: cols[7] || "インポートログ",
+                    area: currentArea
+                  });
+                  count++;
+                }
+              }
+            } else {
+              // Space delimited (.log / .txt)
+              const parts = clean.split(/\s+/);
+              if (parts.length >= 4) {
+                const call = parts.find(p => /^[A-Z0-9]{3,8}\/?[A-Z0-9]*$/i.test(p));
+                if (call) {
+                  qsoLogs.unshift({
+                    id: String(Date.now() + Math.floor(Math.random() * 1000)),
+                    timestamp: new Date().toISOString(),
+                    callsign: call.toUpperCase(),
+                    band: "7MHz",
+                    mode: "SSB",
+                    rstSent: "59",
+                    rstRcvd: "59",
+                    contestId: "imported",
+                    contestName: "インポートログ",
+                    area: currentArea
+                  });
+                  count++;
+                }
+              }
+            }
+          });
+
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
+          renderTable();
+          showAlert(`${count} 件のログを取り込みました！`, "success");
+        } catch (err) {
+          showAlert("ファイルの読み込みに失敗しました", "danger");
+        }
+      };
+      reader.readAsText(file);
     }
 
     function downloadFile(content, fileName, mimeType) {
@@ -510,6 +661,7 @@
       a.click();
     }
 
+    // --- 6. AUTHENTICATION & UTILS ---
     function initAuth() {
       if (!auth) return;
 
@@ -525,10 +677,12 @@
           userInfo.classList.remove('hidden');
           loginBtn.classList.add('hidden');
           logoutBtn.classList.remove('hidden');
+          updateSyncStatus("☁️ クラウド同期完了", "success");
         } else {
           userInfo.classList.add('hidden');
           loginBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
+          updateSyncStatus("☁️ 未ログイン (ローカル保存)", "normal");
         }
       });
 
@@ -547,11 +701,11 @@
     function showAlert(msg, type = "info") {
       const box = document.getElementById('alertBox');
       box.textContent = msg;
-      box.className = "p-4 rounded-lg text-sm font-medium transition-all shadow border ";
+      box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md border ";
       
-      if (type === "success") box.className += "bg-emerald-50 text-emerald-800 border-emerald-200";
-      else if (type === "danger") box.className += "bg-red-50 text-red-800 border-red-200";
-      else box.className += "bg-blue-50 text-blue-800 border-blue-200";
+      if (type === "success") box.className += "bg-emerald-950/90 text-emerald-200 border-emerald-800";
+      else if (type === "danger") box.className += "bg-red-950/90 text-red-200 border-red-800";
+      else box.className += "bg-blue-950/90 text-blue-200 border-blue-800";
 
       box.classList.remove('hidden');
       setTimeout(() => box.classList.add('hidden'), 3500);
