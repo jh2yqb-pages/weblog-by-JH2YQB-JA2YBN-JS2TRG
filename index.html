@@ -456,8 +456,6 @@
         firebase.initializeApp(firebaseConfig);
         auth = firebase.auth();
         db = firebase.firestore();
-        // オフラインキャッシュの有効化で同期高速化
-        db.enablePersistence({ synchronizeTabs: true }).catch(err => console.warn("Persistence error:", err));
       }
     } catch (e) {
       console.warn("Firebase Init Error:", e);
@@ -594,22 +592,14 @@
       resetForm();
       showAlert("QSOを登録しました (ローカル即時保存)", "success");
 
-      // タイムアウト付き同期処理で低速通信時の待たされを防止
       if (currentUser && db) {
         updateSyncStatus("☁️ クラウド保存中...", "syncing");
-        
-        const savePromise = db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(qsoData.id).set(qsoData);
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
-
-        Promise.race([savePromise, timeoutPromise])
+        db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(qsoData.id)
+          .set(qsoData)
           .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
           .catch(err => {
-            console.warn("Cloud Save Sync:", err);
-            if (err.message === "Timeout") {
-              updateSyncStatus("☁️ バックグラウンド同期中", "normal");
-            } else {
-              updateSyncStatus("⚠️ クラウド保存失敗", "error");
-            }
+            console.error("Cloud Save Error:", err);
+            updateSyncStatus("⚠️ クラウド保存失敗", "error");
           });
       }
     };
@@ -624,15 +614,12 @@
 
       if (currentUser && db) {
         updateSyncStatus("☁️ クラウド削除中...", "syncing");
-        
-        const deletePromise = db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(targetIdStr).delete();
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
-
-        Promise.race([deletePromise, timeoutPromise])
+        db.collection("users").doc(currentUser.uid).collection("qsoLogs").doc(targetIdStr)
+          .delete()
           .then(() => updateSyncStatus("☁️ クラウド同期完了", "success"))
           .catch(err => {
-            console.warn("Cloud Delete Sync:", err);
-            updateSyncStatus("☁️ バックグラウンド同期中", "normal");
+            console.error("Cloud Delete Error:", err);
+            updateSyncStatus("⚠️ クラウド削除失敗", "error");
           });
       }
     };
@@ -760,4 +747,256 @@
         // CSV Parsing
         if (clean.includes(',')) {
           const cols = clean.split(',').map(s => s.replace(/"/g, '').trim());
-          if (cols.length
+          if (cols.length >= 4) {
+            const call = cols[2] || cols[0];
+            if (call && call.length >= 3) {
+              importedList.push({
+                id: String(Date.now() + Math.floor(Math.random() * 10000)),
+                timestamp: new Date().toISOString(),
+                callsign: call.toUpperCase(),
+                band: cols[3] || "7MHz",
+                mode: cols[4] || "SSB",
+                rstSent: cols[5] || "59",
+                rstRcvd: cols[6] || "59",
+                contestId: contestId,
+                contestName: contestName,
+                area: currentArea
+              });
+            }
+          }
+        } else {
+          // Space / Standard Format Parsing
+          const parts = clean.split(/\s+/);
+          if (parts.length >= 4) {
+            const call = parts.find(p => /^[A-Z0-9]{3,8}\/?[A-Z0-9]*$/i.test(p) && !p.includes(':') && !p.includes('MHz'));
+            if (call) {
+              importedList.push({
+                id: String(Date.now() + Math.floor(Math.random() * 10000)),
+                timestamp: new Date().toISOString(),
+                callsign: call.toUpperCase(),
+                band: parts[2] || "7MHz",
+                mode: parts[3] || "SSB",
+                rstSent: parts[5] || "59",
+                rstRcvd: parts[6] || "59",
+                contestId: contestId,
+                contestName: contestName,
+                area: currentArea
+              });
+            }
+          }
+        }
+      });
+
+      if (importedList.length === 0) {
+        return alert("有効なQSOログデータが見つかりませんでした。");
+      }
+
+      if (mode === "overwrite") {
+        qsoLogs = importedList;
+      } else {
+        qsoLogs = [...importedList, ...qsoLogs];
+      }
+
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(qsoLogs));
+      renderTable();
+      closeImportModal();
+      showAlert(`${importedList.length} 件のログを取り込みました！`, "success");
+    };
+
+    // --- 6. MODAL 2: EXPORT / SUMMARY MODAL LOGIC ---
+    window.openExportModal = function() {
+      const modal = document.getElementById('exportModal');
+      if (modal) modal.classList.remove('hidden');
+      updateExportPreview();
+    };
+
+    window.closeExportModal = function() {
+      const modal = document.getElementById('exportModal');
+      if (modal) modal.classList.add('hidden');
+    };
+
+    window.switchExportTab = function(tabKey) {
+      activeExportTab = tabKey;
+      document.querySelectorAll('#exportModal button[id^="exportTab-"]').forEach(btn => btn.className = "px-4 py-2.5 transition hover:text-slate-200 cursor-pointer");
+      const activeBtn = document.getElementById(`exportTab-${tabKey}`);
+      if (activeBtn) activeBtn.className = "px-4 py-2.5 modal-tab-active transition cursor-pointer";
+
+      const jarlInputs = document.getElementById('jarlInputs');
+      const extSelect = document.getElementById('exportExtSelect');
+
+      if (jarlInputs && extSelect) {
+        if (tabKey === 'jarl') {
+          jarlInputs.classList.remove('hidden');
+          extSelect.value = '.log';
+        } else if (tabKey === 'adif') {
+          jarlInputs.classList.add('hidden');
+          extSelect.value = '.adi';
+        } else {
+          jarlInputs.classList.add('hidden');
+          extSelect.value = '.csv';
+        }
+      }
+
+      updateExportPreview();
+    };
+
+    window.updateExportPreview = function() {
+      let targetLogs = [...getFilteredLogs()];
+      const sortType = document.querySelector('input[name="exportSort"]:checked')?.value || "time";
+      const contestSelect = document.getElementById('contestSelect');
+      const selectedOpt = contestSelect && contestSelect.options && contestSelect.selectedIndex >= 0 ? contestSelect.options[contestSelect.selectedIndex] : null;
+      const contestName = selectedOpt ? selectedOpt.text : "コンテスト";
+
+      // Sort
+      if (sortType === "freq") {
+        targetLogs.sort((a, b) => getBandValue(a.band) - getBandValue(b.band));
+      } else {
+        targetLogs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      }
+
+      const previewArea = document.getElementById('exportPreviewText');
+      if (!previewArea) return;
+
+      let outputText = "";
+
+      if (activeExportTab === 'jarl') {
+        const callsign = document.getElementById('jarlCallsign')?.value.trim() || "YOUR-CALL";
+        const category = document.getElementById('jarlCategory')?.value.trim() || "一般種目 シングルオペ";
+        const name = document.getElementById('jarlName')?.value.trim() || "山田 太郎";
+
+        const cleanContestName = (contestName || "JARL_CONTEST").replace(/\s+/g, '_');
+
+        outputText = `<SUMMARYSHEET VERSION=2.0>\n`;
+        outputText += `<CONTESTNAME>${contestName}</CONTESTNAME>\n`;
+        outputText += `<CATEGORYCODE>${category}</CATEGORYCODE>\n`;
+        outputText += `<CALLSIGN>${callsign}</CALLSIGN>\n`;
+        outputText += `<NAME>${name}</NAME>\n`;
+        outputText += `<TOTALSCORE>${targetLogs.length}</TOTALSCORE>\n`;
+        outputText += `</SUMMARYSHEET>\n\n`;
+
+        outputText += `<LOGSHEET TYPE=${cleanContestName}>\n`;
+        outputText += `DATE       TIME  BAND     MODE CALLSIGN      SENT   RCVD\n`;
+
+        targetLogs.forEach(l => {
+          const dt = new Date(l.timestamp);
+          const dateStr = dt.toISOString().slice(0,10);
+          const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
+          outputText += `${dateStr} ${timeStr} ${(l.band || "").padEnd(8)} ${(l.mode || "").padEnd(4)} ${(l.callsign || "").padEnd(13)} ${(l.rstSent || "").padEnd(6)} ${l.rstRcvd || ""}\n`;
+        });
+        outputText += `</LOGSHEET>\n`;
+
+      } else if (activeExportTab === 'adif') {
+        outputText = `ADIF Export - WebLog Contest Console\n<EOH>\n\n`;
+        targetLogs.forEach(l => {
+          const dt = new Date(l.timestamp);
+          const dStr = dt.toISOString().slice(0,10).replace(/-/g, '');
+          const tStr = String(dt.getUTCHours()).padStart(2,'0') + String(dt.getUTCMinutes()).padStart(2,'0');
+          outputText += `<CALL:${l.callsign.length}>${l.callsign} <QSO_DATE:8>${dStr} <TIME_ON:4>${tStr} <BAND:${l.band.length}>${l.band} <MODE:${l.mode.length}>${l.mode} <RST_SENT:${l.rstSent.length}>${l.rstSent} <RST_RCVD:${l.rstRcvd.length}>${l.rstRcvd} <EOR>\n`;
+        });
+
+      } else {
+        const ext = document.getElementById('exportExtSelect')?.value || ".csv";
+        if (ext === '.csv') {
+          outputText = "ID,Timestamp_UTC,Callsign,Band,Mode,Sent,Rcvd,Contest\n";
+          targetLogs.forEach(l => {
+            outputText += `"${l.id}","${l.timestamp}","${l.callsign}","${l.band}","${l.mode}","${l.rstSent}","${l.rstRcvd}","${l.contestName}"\n`;
+          });
+        } else {
+          outputText = "DATE(UTC)  TIME  BAND     MODE CALLSIGN      SENT   RCVD   CONTEST\n";
+          targetLogs.forEach(l => {
+            const dt = new Date(l.timestamp);
+            const dateStr = dt.toISOString().slice(0,10);
+            const timeStr = String(dt.getUTCHours()).padStart(2,'0') + ":" + String(dt.getUTCMinutes()).padStart(2,'0');
+            outputText += `${dateStr} ${timeStr} ${(l.band || "").padEnd(8)} ${(l.mode || "").padEnd(4)} ${(l.callsign || "").padEnd(13)} ${(l.rstSent || "").padEnd(6)} ${(l.rstRcvd || "").padEnd(6)} ${l.contestName}\n`;
+          });
+        }
+      }
+
+      previewArea.value = outputText;
+    };
+
+    window.copyExportToClipboard = function() {
+      const text = document.getElementById('exportPreviewText')?.value || "";
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showAlert("クリップボードにコピーしました！", "success");
+      });
+    };
+
+    window.downloadExportFile = function() {
+      const text = document.getElementById('exportPreviewText')?.value || "";
+      const ext = document.getElementById('exportExtSelect')?.value || ".log";
+      if (!text) return;
+      downloadFile(text, `contest_log_${Date.now()}${ext}`, "text/plain");
+    };
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      a.click();
+    }
+
+    // --- 7. AUTHENTICATION & UTILS ---
+    function initAuth() {
+      const loginBtn = document.getElementById('loginBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      if (loginBtn) {
+        loginBtn.onclick = () => {
+          if (!auth) {
+            showAlert("Firebaseが有効化されていません (ローカルモードで動作中)", "info");
+            return;
+          }
+          const provider = new firebase.auth.GoogleAuthProvider();
+          auth.signInWithPopup(provider).catch(err => {
+            showAlert(`ログイン失敗: ${err.message}`, "danger");
+          });
+        };
+      }
+
+      if (logoutBtn) {
+        logoutBtn.onclick = () => {
+          if (auth) auth.signOut();
+        };
+      }
+
+      if (!auth) return;
+
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        const userInfo = document.getElementById('userInfo');
+        const userName = document.getElementById('userName');
+
+        if (user) {
+          if (userName) userName.textContent = user.displayName || user.email;
+          if (userInfo) userInfo.classList.remove('hidden');
+          if (loginBtn) loginBtn.classList.add('hidden');
+          if (logoutBtn) logoutBtn.classList.remove('hidden');
+          updateSyncStatus("☁️ クラウド同期完了", "success");
+        } else {
+          if (userInfo) userInfo.classList.add('hidden');
+          if (loginBtn) loginBtn.classList.remove('hidden');
+          if (logoutBtn) logoutBtn.classList.add('hidden');
+          updateSyncStatus("☁️ 未ログイン (ローカル保存)", "normal");
+        }
+      });
+    }
+
+    window.showAlert = function(msg, type = "info") {
+      const box = document.getElementById('alertBox');
+      if (!box) return;
+      box.textContent = msg;
+      box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md border ";
+      
+      if (type === "success") box.className += "bg-emerald-950/90 text-emerald-200 border-emerald-800";
+      else if (type === "danger") box.className += "bg-red-950/90 text-red-200 border-red-800";
+      else box.className += "bg-blue-950/90 text-blue-200 border-blue-800";
+
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 3500);
+    };
+  </script>
+</body>
+</html>
