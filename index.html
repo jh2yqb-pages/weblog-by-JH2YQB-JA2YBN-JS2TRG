@@ -74,7 +74,7 @@
       <input type="hidden" id="editIndex" value="-1">
       
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
-        <!-- QSO Time (紙ログ対応) -->
+        <!-- QSO Time -->
         <div class="col-span-2 sm:col-span-2 md:col-span-2">
           <label class="block text-xs font-semibold text-cyan-400 mb-1">交信日時 (紙ログ後打対応)</label>
           <input type="datetime-local" id="qsoTime" required class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-sm rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
@@ -90,7 +90,7 @@
         <!-- Band -->
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">周波数 (Band)</label>
-          <select id="band" onchange="window.checkDupe()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="band" onchange="window.onBandChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="1.9MHz">1.9 MHz</option>
             <option value="3.5MHz">3.5 MHz</option>
             <option value="7MHz" selected>7 MHz</option>
@@ -126,7 +126,7 @@
           </select>
         </div>
 
-        <!-- Sent Exchange Control & Input -->
+        <!-- Sent Exchange Input -->
         <div class="col-span-2 sm:col-span-3 md:col-span-1">
           <label class="block text-xs font-semibold text-slate-400 mb-1">送信ナンバー</label>
           <input type="text" id="rstSent" placeholder="59001" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
@@ -145,10 +145,10 @@
           <label class="block text-xs font-semibold text-slate-400 mb-1">送信ナンバー動作</label>
           <div class="flex items-center gap-3 pt-1 text-xs">
             <label class="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="exchangeMode" value="fixed" class="text-cyan-500 focus:ring-0"> 固定
+              <input type="radio" name="exchangeMode" value="fixed" onchange="window.updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 固定
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="exchangeMode" value="increment" checked class="text-cyan-500 focus:ring-0"> 連番 (+1自動加算)
+              <input type="radio" name="exchangeMode" value="increment" checked onchange="window.updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 連番 (Band別自動追従)
             </label>
             <button type="button" onclick="window.resetSerial()" class="text-[10px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2 py-0.5 rounded transition">↺ リセット</button>
           </div>
@@ -351,14 +351,23 @@
 
   const BAND_ORDER = ["1.9MHz", "3.5MHz", "7MHz", "14MHz", "21MHz", "28MHz", "50MHz", "144MHz", "430MHz", "1200MHz", "2400MHz", "5600MHz", "10.1GHz"];
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDummyKeyForWebLogConsole2026",
-    authDomain: "weblog-console.firebaseapp.com",
-    projectId: "weblog-console",
-    storageBucket: "weblog-console.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abcdef123456"
-  };
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDx9_a-T5-lD2N1BPsSl1LIH3z0m5aJ1K8",
+  authDomain: "weblog-17669.firebaseapp.com",
+  projectId: "weblog-17669",
+  storageBucket: "weblog-17669.firebasestorage.app",
+  messagingSenderId: "574825323120",
+  appId: "1:574825323120:web:bd3654de564736e1e1f2b5"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
   let db = null;
   let auth = null;
@@ -458,6 +467,7 @@
             qsos = doc.data().qsos;
             localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
             window.renderTable();
+            window.updateSerialForCurrentBand();
           }
         }).catch(e => console.error(e));
       } else {
@@ -501,12 +511,14 @@
 
     selectedContest = contests.length > 0 ? contests[0] : "";
     window.renderTable();
+    window.updateSerialForCurrentBand();
   };
 
   window.onContestChange = function() {
     const select = document.getElementById("contestSelect");
     if (select) selectedContest = select.value;
     window.renderTable();
+    window.updateSerialForCurrentBand();
   };
 
   window.checkDupe = function() {
@@ -541,12 +553,36 @@
     return currentStr + "001";
   }
 
+  // 選択中の周波数（Band）に応じた送信ナンバーの連番を自動設定
+  window.updateSerialForCurrentBand = function() {
+    const exMode = document.querySelector('input[name="exchangeMode"]:checked')?.value;
+    if (exMode !== "increment") return;
+
+    const editIdx = parseInt(document.getElementById("editIndex").value);
+    if (editIdx >= 0) return; // 既存ログの修正中は上書きしない
+
+    const currentBand = document.getElementById("band").value;
+    
+    // 現在選択中のコンテスト & 周波数で最後の交信ログを取得（qsosは最新が先頭）
+    const lastQsoForBand = qsos.find(q => q.contest === selectedContest && q.band === currentBand);
+
+    if (lastQsoForBand && lastQsoForBand.rstSent) {
+      document.getElementById("rstSent").value = getNextExchangeNumber(lastQsoForBand.rstSent);
+    } else {
+      document.getElementById("rstSent").value = "59001";
+    }
+  };
+
+  window.onBandChange = function() {
+    window.checkDupe();
+    window.updateSerialForCurrentBand();
+  };
+
   window.resetSerial = function() {
     document.getElementById("rstSent").value = "59001";
     window.showAlert("送信ナンバーを 59001 にリセットしました。", "info");
   };
 
-  // datetime-local 用に Date オブジェクトを YYYY-MM-DDTHH:mm 形式へ変換
   function formatDateToInput(dateObj) {
     const d = new Date(dateObj);
     const year = d.getFullYear();
@@ -574,7 +610,6 @@
         return;
       }
 
-      // 入力された日時を ISO 形式に変換
       const timeIso = qsoTimeVal ? new Date(qsoTimeVal).toISOString() : new Date().toISOString();
 
       const qsoData = {
@@ -594,16 +629,10 @@
       } else {
         qsos.unshift(qsoData);
         window.showAlert("交信データを保存しました。", "success");
-
-        // 送信ナンバー加算処理
-        const exMode = document.querySelector('input[name="exchangeMode"]:checked')?.value;
-        if (exMode === "increment") {
-          document.getElementById("rstSent").value = getNextExchangeNumber(rstSent);
-        }
       }
 
-      window.resetForm(false); // 送信ナンバーは維持してフォームリセット
       saveToStorage();
+      window.resetForm(); // 周波数に応じた次の連番を自動設定
     } catch (err) {
       console.error(err);
       window.showAlert("保存中にエラーが発生しました。", "error");
@@ -621,7 +650,6 @@
     document.getElementById("rstRcvd").value = q.rstRcvd;
     document.getElementById("remarks").value = q.remarks || "";
 
-    // 登録済みの日時を交信日時入力欄に設定
     if (q.time) {
       document.getElementById("qsoTime").value = formatDateToInput(q.time);
     }
@@ -646,11 +674,12 @@
       qsos.splice(deleteTargetIndex, 1);
       saveToStorage();
       window.showAlert("ログを削除しました。", "info");
+      window.updateSerialForCurrentBand();
     }
     window.closeDeleteModal();
   };
 
-  window.resetForm = function(resetRstSent = true) {
+  window.resetForm = function() {
     document.getElementById("editIndex").value = "-1";
     document.getElementById("callsign").value = "";
     document.getElementById("rstRcvd").value = "";
@@ -659,13 +688,9 @@
     document.getElementById("saveBtn").textContent = "交信保存";
     document.getElementById("cancelEditBtn").classList.add("hidden");
     
-    // 現在時刻をデフォルトセット
     document.getElementById("qsoTime").value = formatDateToInput(new Date());
 
-    if (resetRstSent) {
-      const currentRst = document.getElementById("rstSent").value;
-      if (!currentRst) document.getElementById("rstSent").value = "59001";
-    }
+    window.updateSerialForCurrentBand();
   };
 
   window.renderTable = function() {
