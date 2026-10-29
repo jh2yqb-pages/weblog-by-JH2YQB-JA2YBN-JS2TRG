@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>アマチュア無線コンテストログ (WebLog Contest Console)</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Firebase SDKs -->
+<!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <style>
-.active-tab {
-  background-color: #2563eb !important;
-  color: #ffffff !important;
-  font-weight: bold;
-}
-.modal-tab-active {
-  border-bottom: 2px solid #06b6d4;
-  color: #06b6d4;
-  font-weight: bold;
-}
+  .active-tab {
+    background-color: #0284c7 !important; /* sky-600 */
+    color: #ffffff !important;
+    font-weight: 700;
+    border-color: #38bdf8 !important;
+  }
 </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-cyan-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-cyan-500 selection:text-white pb-12">
 
 <!-- Header -->
 <header class="bg-slate-900 border-b border-slate-800 text-white shadow-lg sticky top-0 z-40">
@@ -31,66 +27,87 @@
       <span class="text-2xl">📻</span>
       <div>
         <h1 class="text-lg font-bold tracking-wide">WebLog Contest Console</h1>
-        <div class="flex items-center gap-2 text-xs">
-          <span id="syncStatus" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium">☁️ 未ログイン (ローカル保存)</span>
+        <div class="flex items-center gap-2 text-xs mt-0.5">
+          <span id="syncStatus" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-medium border border-slate-700">☁️ ローカル保存中</span>
         </div>
       </div>
     </div>
     <div id="authStatus" class="flex items-center gap-3 text-sm">
-      <span id="userInfo" class="hidden text-slate-300">ユーザー: <strong id="userName" class="text-white"></strong></span>
-      <button id="loginBtn" onclick="loginGoogle()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition">Googleログイン</button>
-      <button id="logoutBtn" onclick="logoutGoogle()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-medium transition">ログアウト</button>
+      <span id="userInfo" class="hidden text-slate-300 text-xs">ユーザー: <strong id="userName" class="text-cyan-400"></strong></span>
+      <button id="loginBtn" onclick="loginGoogle()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition shadow">Googleログイン</button>
+      <button id="logoutBtn" onclick="logoutGoogle()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3.5 py-1.5 rounded-lg text-xs font-medium transition">ログアウト</button>
     </div>
   </div>
 </header>
 
 <!-- Main Container -->
 <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-  <!-- Alert Box -->
-  <div id="alertBox" class="hidden p-4 rounded-xl text-sm font-medium transition-all shadow-md"></div>
+  <!-- Toast Notification Box -->
+  <div id="alertBox" class="hidden p-4 rounded-xl text-sm font-medium transition-all shadow-lg border"></div>
 
   <!-- Area & Contest Selector Panel -->
   <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
-    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. エリア・コンテストの選択</h2>
+    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+      <span>1. エリア・コンテストの選択</span>
+    </h2>
     <!-- Area Tabs -->
     <div class="flex flex-wrap gap-1.5 mb-4" id="areaTabs">
-      <button onclick="selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">全国</button>
-      <button onclick="selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">1エリア(関東)</button>
-      <button onclick="selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">2エリア(東海)</button>
-      <button onclick="selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">3エリア(関西)</button>
-      <button onclick="selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">4エリア(中国)</button>
-      <button onclick="selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">5エリア(四国)</button>
-      <button onclick="selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">6エリア(九州)</button>
-      <button onclick="selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">7エリア(東北)</button>
-      <button onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">8エリア(北海道)</button>
-      <button onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">9エリア(北陸)</button>
-      <button onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">0エリア(信越)</button>
-      <button onclick="selectArea('dx')" id="tab-dx" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">DX</button>
+      <button type="button" onclick="selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">全国</button>
+      <button type="button" onclick="selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">1エリア(関東)</button>
+      <button type="button" onclick="selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">2エリア(東海)</button>
+      <button type="button" onclick="selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">3エリア(関西)</button>
+      <button type="button" onclick="selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">4エリア(中国)</button>
+      <button type="button" onclick="selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">5エリア(四国)</button>
+      <button type="button" onclick="selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">6エリア(九州)</button>
+      <button type="button" onclick="selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">7エリア(東北)</button>
+      <button type="button" onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">8エリア(北海道)</button>
+      <button type="button" onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">9エリア(北陸)</button>
+      <button type="button" onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">0エリア(信越)</button>
+      <button type="button" onclick="selectArea('dx')" id="tab-dx" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">DX</button>
     </div>
     <!-- Contest Dropdown -->
     <div>
       <label for="contestSelect" class="block text-xs font-semibold text-slate-400 mb-1">対象コンテスト</label>
-      <select id="contestSelect" onchange="onContestChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+      <select id="contestSelect" onchange="onContestChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-cyan-500 outline-none cursor-pointer">
       </select>
     </div>
   </section>
 
-  <!-- Logging Form -->
+  <!-- Logging Form Section -->
   <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
-    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. QSOデータ入力</h2>
+    <div class="flex flex-wrap justify-between items-center gap-2 mb-3 border-b border-slate-800 pb-2">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">2. QSOデータ入力</h2>
+      
+      <!-- Sent Exchange Mode Switcher (固定 vs 連番+1) -->
+      <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800 text-xs">
+        <span class="text-slate-400 font-semibold px-1">送信ナンバー方式:</span>
+        <label class="flex items-center gap-1 cursor-pointer text-slate-200">
+          <input type="radio" name="sentNumMode" value="fixed" onchange="onSentNumModeChange()" class="text-cyan-500 focus:ring-0">
+          <span>固定 (例: 5910)</span>
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer text-slate-200 ml-2">
+          <input type="radio" name="sentNumMode" value="auto_increment" checked onchange="onSentNumModeChange()" class="text-cyan-500 focus:ring-0">
+          <span class="text-cyan-300 font-bold">連番 (+1自動加算)</span>
+        </label>
+        <button type="button" onclick="resetSerialNum()" title="連番を初期値(例: 59001)にリセット" class="ml-2 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded text-[11px] transition">
+          ↺ 連番リセット
+        </button>
+      </div>
+    </div>
+
     <form id="qsoForm" onsubmit="handleSaveQso(event)" class="space-y-4">
       <input type="hidden" id="editIndex" value="-1">
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
         <!-- Callsign -->
         <div class="col-span-2 sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-400 mb-1">相手コールサイン *</label>
-          <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-lg font-bold rounded-lg p-2 focus:ring-2 focus:ring-blue-500 uppercase tracking-wider outline-none">
-          <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden">⚠️ DUPE（交信済み）</span>
+          <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-lg font-bold rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 uppercase tracking-wider outline-none">
+          <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden">⚠️ DUPE（同一Band・コンテストで交信済み）</span>
         </div>
         <!-- Band -->
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">周波数 (Band)</label>
-          <select id="band" onchange="checkDupe()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="band" onchange="checkDupe()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
             <option value="1.9MHz">1.9 MHz</option>
             <option value="3.5MHz">3.5 MHz</option>
             <option value="7MHz" selected>7 MHz</option>
@@ -107,7 +124,7 @@
         <!-- Mode -->
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">モード (Mode)</label>
-          <select id="mode" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="mode" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
             <option value="CW">CW</option>
             <option value="SSB" selected>SSB</option>
             <option value="FM">FM</option>
@@ -124,24 +141,31 @@
         </div>
         <!-- Sent Exchange -->
         <div>
-          <label class="block text-xs font-semibold text-slate-400 mb-1">送信ナンバー</label>
-          <input type="text" id="rstSent" placeholder="5959" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="block text-xs font-semibold text-slate-400 mb-1 flex justify-between">
+            <span>送信ナンバー</span>
+            <span id="sentModeLabel" class="text-[10px] text-cyan-400 font-mono">連番+1</span>
+          </label>
+          <input type="text" id="rstSent" value="59001" placeholder="59001" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-base font-bold rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 outline-none">
         </div>
         <!-- Rcvd Exchange -->
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">受信ナンバー</label>
-          <input type="text" id="rstRcvd" placeholder="5910" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="text" id="rstRcvd" placeholder="5910" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-base font-bold rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 outline-none">
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
         <div class="sm:col-span-3">
-          <label class="block text-xs font-semibold text-slate-400 mb-1">備考 / メモ</label>
-          <input type="text" id="remarks" placeholder="OP名、QTH、リグ情報など" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <label class="block text-xs font-semibold text-slate-400 mb-1">備考 / メモ (OP名・QTHなど)</label>
+          <input type="text" id="remarks" placeholder="例: 1kW, JCC#1001" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
         </div>
         <div class="flex gap-2 mt-4 sm:mt-0">
-          <button type="submit" id="saveBtn" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition shadow-md">交信録音 (保存)</button>
-          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-3 rounded-lg text-sm transition">キャンセル</button>
+          <button type="submit" id="saveBtn" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition shadow-md active:scale-95">
+            交信保存 (Enter)
+          </button>
+          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2.5 px-3 rounded-lg text-sm transition">
+            キャンセル
+          </button>
         </div>
       </div>
     </form>
@@ -155,15 +179,15 @@
         <span id="logCountBadge" class="bg-cyan-950 text-cyan-400 border border-cyan-800 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full">0件</span>
       </div>
       
-      <!-- Table Display Filters & Actions -->
+      <!-- Table Filters & Actions -->
       <div class="flex flex-wrap items-center gap-2">
-        <select id="tableFilter" onchange="renderTable()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 focus:ring-2 focus:ring-cyan-500 outline-none">
+        <select id="tableFilter" onchange="renderTable()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 outline-none">
           <option value="selected">現在のコンテストのみ表示</option>
           <option value="all">すべてのログを表示</option>
         </select>
-        <input type="text" id="searchInput" oninput="renderTable()" placeholder="コールサイン検索..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-cyan-500 outline-none w-36">
-        <button onclick="openImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📥 インポート</button>
-        <button onclick="openExportModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📤 エクスポート</button>
+        <input type="text" id="searchInput" oninput="renderTable()" placeholder="コールサイン検索..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-cyan-500 outline-none w-36">
+        <button type="button" onclick="openImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-2 rounded-lg transition">📥 インポート</button>
+        <button type="button" onclick="openExportModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-bold px-3 py-2 rounded-lg transition">📤 エクスポート</button>
       </div>
     </div>
 
@@ -191,12 +215,25 @@
   </section>
 </main>
 
+<!-- Delete Confirmation Modal (Native confirm() replacement) -->
+<div id="deleteConfirmModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+    <h3 class="text-base font-bold text-white flex items-center gap-2">⚠️ QSOログの削除</h3>
+    <p class="text-xs text-slate-300">選択した交信データを削除します。よろしいですか？</p>
+    <input type="hidden" id="deleteTargetIndex" value="-1">
+    <div class="flex justify-end gap-2 pt-2">
+      <button type="button" onclick="closeDeleteModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium">キャンセル</button>
+      <button type="button" onclick="confirmDeleteQso()" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">削除する</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Export -->
 <div id="exportModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
   <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
     <div class="p-4 border-b border-slate-800 flex justify-between items-center">
       <h3 class="text-base font-bold text-white">ログ出力・サマリーシート作成</h3>
-      <button onclick="closeExportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <button type="button" onclick="closeExportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
     </div>
     
     <div class="p-4 overflow-y-auto space-y-4 text-xs">
@@ -204,14 +241,14 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-800">
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">出力対象</label>
-          <select id="exportScope" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportScope" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-slate-200">
             <option value="selected">現在選択中のコンテストのみ</option>
             <option value="all">全コンテストログ</option>
           </select>
         </div>
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">出力形式</label>
-          <select id="exportFormat" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportFormat" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-slate-200">
             <option value="jarl">JARL推奨テキスト形式 (.log)</option>
             <option value="adif">ADIF形式 (.adi)</option>
             <option value="csv">CSV形式 (.csv)</option>
@@ -219,7 +256,7 @@
         </div>
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">ソート順</label>
-          <select id="exportSort" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportSort" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-slate-200">
             <option value="time">日時順 (UTC)</option>
             <option value="band">周波数順 (Band)</option>
           </select>
@@ -232,37 +269,37 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <div>
             <label class="block text-slate-400 text-[10px]">自局コールサイン</label>
-            <input type="text" id="summaryMyCall" placeholder="JA1ZLO" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100 uppercase">
+            <input type="text" id="summaryMyCall" placeholder="JA1ZLO" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-100 uppercase">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">参加種目コード</label>
-            <input type="text" id="summaryCategory" placeholder="C7" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryCategory" placeholder="C7" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-100">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">氏名 / Name</label>
-            <input type="text" id="summaryName" placeholder="電波 太郎" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryName" placeholder="電波 太郎" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-100">
           </div>
           <div class="col-span-2">
             <label class="block text-slate-400 text-[10px]">住所 / Address</label>
-            <input type="text" id="summaryAddress" placeholder="東京都千代田区..." oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryAddress" placeholder="東京都千代田区..." oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-100">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">連絡先 Email</label>
-            <input type="email" id="summaryEmail" placeholder="cq@example.com" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="email" id="summaryEmail" placeholder="cq@example.com" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-100">
           </div>
         </div>
       </div>
 
       <!-- Preview Box -->
       <div>
-        <label class="block text-slate-400 mb-1 font-semibold">出力プレビュー (実際の出力内容と一致)</label>
+        <label class="block text-slate-400 mb-1 font-semibold">出力プレビュー (出力ファイルと100%同一内容)</label>
         <textarea id="exportPreview" readonly class="w-full h-52 bg-black text-green-400 font-mono text-xs p-3 rounded-lg border border-slate-800 outline-none leading-relaxed"></textarea>
       </div>
     </div>
 
     <div class="p-4 border-t border-slate-800 flex justify-end gap-2">
-      <button onclick="copyExportText()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-lg text-xs transition">📋 クリップボードにコピー</button>
-      <button onclick="downloadExportFile()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition shadow-md">💾 ファイル保存</button>
+      <button type="button" onclick="copyExportText()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-lg text-xs transition">📋 クリップボードにコピー</button>
+      <button type="button" onclick="downloadExportFile()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition shadow-md">💾 ファイル保存</button>
     </div>
   </div>
 </div>
@@ -272,7 +309,7 @@
   <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-2xl flex flex-col shadow-2xl">
     <div class="p-4 border-b border-slate-800 flex justify-between items-center">
       <h3 class="text-base font-bold text-white">交信ログ インポート</h3>
-      <button onclick="closeImportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <button type="button" onclick="closeImportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
     </div>
     
     <div class="p-4 space-y-4 text-xs">
@@ -287,19 +324,19 @@
       <div>
         <label class="block text-slate-400 mb-1 font-semibold">インポートモード</label>
         <div class="flex gap-4">
-          <label class="flex items-center gap-1.5 text-slate-300">
+          <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
             <input type="radio" name="importMode" value="append" checked class="text-cyan-500"> 既存ログに追加
           </label>
-          <label class="flex items-center gap-1.5 text-slate-300">
-            <input type="radio" name="importMode" value="overwrite" class="text-cyan-500"> 全データを上書き置き換え
+          <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer">
+            <input type="radio" name="importMode" value="overwrite" class="text-cyan-500"> 全データを置き換え
           </label>
         </div>
       </div>
     </div>
 
     <div class="p-4 border-t border-slate-800 flex justify-end gap-2">
-      <button onclick="closeImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium">キャンセル</button>
-      <button onclick="executeImport()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">インポート実行</button>
+      <button type="button" onclick="closeImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium">キャンセル</button>
+      <button type="button" onclick="executeImport()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">インポート実行</button>
     </div>
   </div>
 </div>
@@ -323,32 +360,26 @@ const CONTEST_DATA = {
 
 const BAND_ORDER = ["1.9MHz", "3.5MHz", "7MHz", "14MHz", "21MHz", "28MHz", "50MHz", "144MHz", "430MHz", "1200MHz", "2400MHz"];
 
-// --- FIREBASE CONFIG (Dummy fallback if not replaced) ---
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// --- FIREBASE FALLBACK CONFIG ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDx9_a-T5-lD2N1BPsSl1LIH3z0m5aJ1K8",
-  authDomain: "weblog-17669.firebaseapp.com",
-  projectId: "weblog-17669",
-  storageBucket: "weblog-17669.firebasestorage.app",
-  messagingSenderId: "574825323120",
-  appId: "1:574825323120:web:bd3654de564736e1e1f2b5"
+  apiKey: "AIzaSyDummyKeyForWebLogConsole2026",
+  authDomain: "weblog-console.firebaseapp.com",
+  projectId: "weblog-console",
+  storageBucket: "weblog-console.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 let db = null;
 let auth = null;
 try {
-  firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
-  db = firebase.firestore();
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+  }
 } catch (e) {
-  console.warn("Firebase Init Skipped:", e);
+  console.warn("Firebase initialize skipped:", e);
 }
 
 // --- STATE MANAGEMENT ---
@@ -356,6 +387,7 @@ let qsos = [];
 let currentArea = "national";
 let selectedContest = "";
 let currentUser = null;
+let sentNumberMode = "auto_increment"; // "fixed" or "auto_increment"
 
 // --- INITIALIZATION ---
 window.addEventListener("DOMContentLoaded", () => {
@@ -363,6 +395,7 @@ window.addEventListener("DOMContentLoaded", () => {
   selectArea("national");
   setupAuth();
   renderTable();
+  onSentNumModeChange();
 });
 
 function loadLocalLogs() {
@@ -372,24 +405,23 @@ function loadLocalLogs() {
   }
 }
 
-// 高速化保存処理：即時UI・LocalStorage更新後、非同期でFirestore更新
+// Instant Storage update (Local-First 0ms response)
 function saveToStorage() {
   localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
   renderTable();
 
   if (currentUser && db) {
-    updateSyncStatus("☁️ 同期中...", "text-yellow-400");
-    // 非同期バックグラウンド処理（awaitなし）
+    updateSyncStatus("☁️ 同期中...", "text-yellow-400 border-yellow-800");
     db.collection("users").doc(currentUser.uid).set({ qsos: qsos }, { merge: true })
       .then(() => {
-        updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
+        updateSyncStatus("☁️ クラウド同期済み", "text-green-400 border-green-800");
       })
       .catch((err) => {
-        console.error("Cloud sync error:", err);
-        updateSyncStatus("⚠️ クラウド保存失敗(ローカル保存済)", "text-red-400");
+        console.warn("Cloud sync warning:", err);
+        updateSyncStatus("☁️ ローカル保存中", "text-slate-400 border-slate-700");
       });
   } else {
-    updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
+    updateSyncStatus("☁️ ローカル保存中", "text-slate-400 border-slate-700");
   }
 }
 
@@ -397,7 +429,7 @@ function updateSyncStatus(text, colorClass) {
   const el = document.getElementById("syncStatus");
   if (el) {
     el.textContent = text;
-    el.className = `px-2 py-0.5 rounded-full bg-slate-800 font-medium ${colorClass}`;
+    el.className = `px-2 py-0.5 rounded-full bg-slate-800 font-medium text-xs border ${colorClass}`;
   }
 }
 
@@ -416,32 +448,31 @@ function setupAuth() {
       userInfo.classList.remove("hidden");
       loginBtn.classList.add("hidden");
       logoutBtn.classList.remove("hidden");
-      updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
+      updateSyncStatus("☁️ クラウド同期済み", "text-green-400 border-green-800");
 
-      // 初回クラウド読み込み
       db.collection("users").doc(user.uid).get().then((doc) => {
         if (doc.exists && doc.data().qsos) {
           qsos = doc.data().qsos;
           localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
           renderTable();
         }
-      }).catch(e => console.error(e));
+      }).catch(e => console.warn(e));
     } else {
       userInfo.classList.add("hidden");
       loginBtn.classList.remove("hidden");
       logoutBtn.classList.add("hidden");
-      updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
+      updateSyncStatus("☁️ ローカル保存中", "text-slate-400 border-slate-700");
     }
   });
 }
 
 function loginGoogle() {
   if (!auth) {
-    showAlert("Firebase認証が構成されていません。", "error");
+    showAlert("Firebase認証が有効化されていません。ローカル環境で動作中です。", "info");
     return;
   }
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch((err) => showAlert("ログイン失敗: " + err.message, "error"));
+  auth.signInWithPopup(provider).catch((err) => showAlert("ログインに失敗しました: " + err.message, "error"));
 }
 
 function logoutGoogle() {
@@ -479,6 +510,45 @@ function onContestChange() {
   renderTable();
 }
 
+// --- SENT NUMBER MODE LOGIC ---
+function onSentNumModeChange() {
+  const radios = document.getElementsByName("sentNumMode");
+  for (const r of radios) {
+    if (r.checked) {
+      sentNumberMode = r.value;
+      break;
+    }
+  }
+  const label = document.getElementById("sentModeLabel");
+  if (sentNumberMode === "auto_increment") {
+    label.textContent = "連番+1";
+    label.className = "text-[10px] text-cyan-400 font-mono font-bold";
+  } else {
+    label.textContent = "固定";
+    label.className = "text-[10px] text-slate-400 font-mono";
+  }
+}
+
+function incrementSerialNumber(exchangeStr) {
+  if (!exchangeStr) return "59001";
+  // Match trailing digits e.g. "59001" -> "59", "001"
+  const match = exchangeStr.match(/^(.*?)(\d+)$/);
+  if (match) {
+    const prefix = match[1];
+    const numStr = match[2];
+    const nextVal = parseInt(numStr, 10) + 1;
+    const padded = String(nextVal).padStart(numStr.length, "0");
+    return prefix + padded;
+  }
+  return exchangeStr + "1";
+}
+
+function resetSerialNum() {
+  const rstSentInput = document.getElementById("rstSent");
+  rstSentInput.value = "59001";
+  showAlert("送信ナンバーの連番を 59001 にリセットしました。", "info");
+}
+
 // --- QSO INPUT & DUPE CHECK ---
 function checkDupe() {
   const call = document.getElementById("callsign").value.trim().toUpperCase();
@@ -504,13 +574,14 @@ function handleSaveQso(e) {
   const callsign = document.getElementById("callsign").value.trim().toUpperCase();
   const band = document.getElementById("band").value;
   const mode = document.getElementById("mode").value;
-  const rstSent = document.getElementById("rstSent").value.trim() || "59";
+  const rstSentInput = document.getElementById("rstSent");
+  const rstSent = rstSentInput.value.trim() || "59001";
   const rstRcvd = document.getElementById("rstRcvd").value.trim() || "59";
   const remarks = document.getElementById("remarks").value.trim();
   const editIdx = parseInt(document.getElementById("editIndex").value);
 
   if (!callsign) {
-    showAlert("コールサインを入力してください。", "error");
+    showAlert("相手コールサインを入力してください。", "error");
     return;
   }
 
@@ -530,13 +601,18 @@ function handleSaveQso(e) {
 
   if (editIdx >= 0) {
     qsos[editIdx] = qsoData;
-    showAlert("交信データを更新しました。", "success");
+    showAlert("交信ログを更新しました。", "success");
   } else {
     qsos.unshift(qsoData);
-    showAlert("交信データを保存しました。", "success");
+    showAlert(`QSO保存完了: ${callsign} (${band}/${mode})`, "success");
+
+    // Auto-increment serial number if enabled
+    if (sentNumberMode === "auto_increment") {
+      rstSentInput.value = incrementSerialNumber(rstSent);
+    }
   }
 
-  resetForm();
+  resetForm(false); // keep sent exchange intact or incremented
   saveToStorage();
 }
 
@@ -553,26 +629,41 @@ function editQso(index) {
 
   document.getElementById("saveBtn").textContent = "変更を保存";
   document.getElementById("cancelEditBtn").classList.remove("hidden");
-  window.scrollTo({ top: 150, behavior: "smooth" });
+  window.scrollTo({ top: 120, behavior: "smooth" });
 }
 
-function deleteQso(index) {
-  if (confirm("この交信ログを削除しますか？")) {
+function openDeleteModal(index) {
+  document.getElementById("deleteTargetIndex").value = index;
+  document.getElementById("deleteConfirmModal").classList.remove("hidden");
+}
+
+function closeDeleteModal() {
+  document.getElementById("deleteConfirmModal").classList.add("hidden");
+}
+
+function confirmDeleteQso() {
+  const index = parseInt(document.getElementById("deleteTargetIndex").value);
+  if (index >= 0 && index < qsos.length) {
     qsos.splice(index, 1);
     saveToStorage();
     showAlert("ログを削除しました。", "info");
   }
+  closeDeleteModal();
 }
 
-function resetForm() {
+function resetForm(clearSent = true) {
   document.getElementById("editIndex").value = "-1";
   document.getElementById("callsign").value = "";
-  document.getElementById("rstSent").value = "";
   document.getElementById("rstRcvd").value = "";
   document.getElementById("remarks").value = "";
   document.getElementById("dupeWarning").classList.add("hidden");
-  document.getElementById("saveBtn").textContent = "交信録音 (保存)";
+  document.getElementById("saveBtn").textContent = "交信保存 (Enter)";
   document.getElementById("cancelEditBtn").classList.add("hidden");
+
+  if (clearSent && sentNumberMode === "fixed") {
+    // leave as is
+  }
+  document.getElementById("callsign").focus();
 }
 
 // --- TABLE RENDER ---
@@ -599,7 +690,8 @@ function renderTable() {
   filtered.forEach((q) => {
     const originalIndex = qsos.indexOf(q);
     const tr = document.createElement("tr");
-    tr.className = "hover:bg-slate-800/50 transition";
+    tr.className = "hover:bg-slate-800/50 transition border-b border-slate-800/60";
+    
     const d = new Date(q.time);
     const dateStr = d.getUTCFullYear() + "-" +
       String(d.getUTCMonth() + 1).padStart(2, '0') + "-" +
@@ -612,13 +704,13 @@ function renderTable() {
       <td class="p-2.5 font-bold text-cyan-300">${q.callsign}</td>
       <td class="p-2.5 text-slate-200">${q.band}</td>
       <td class="p-2.5 text-slate-200">${q.mode}</td>
-      <td class="p-2.5 text-slate-300">${q.rstSent}</td>
-      <td class="p-2.5 text-slate-300">${q.rstRcvd}</td>
+      <td class="p-2.5 text-slate-300 font-bold">${q.rstSent}</td>
+      <td class="p-2.5 text-slate-300 font-bold">${q.rstRcvd}</td>
       <td class="p-2.5 text-slate-400 font-sans text-[11px]">${q.contest || ''}</td>
       <td class="p-2.5 text-slate-400 font-sans text-[11px] max-w-xs truncate">${q.remarks || ''}</td>
       <td class="p-2.5 text-center whitespace-nowrap">
-        <button onclick="editQso(${originalIndex})" class="text-blue-400 hover:text-blue-300 font-sans mr-2">編集</button>
-        <button onclick="deleteQso(${originalIndex})" class="text-red-400 hover:text-red-300 font-sans">削除</button>
+        <button type="button" onclick="editQso(${originalIndex})" class="text-blue-400 hover:text-blue-300 font-sans mr-3.5 transition">編集</button>
+        <button type="button" onclick="openDeleteModal(${originalIndex})" class="text-red-400 hover:text-red-300 font-sans transition">削除</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -714,9 +806,20 @@ function updateExportPreview() {
 
 function copyExportText() {
   const text = document.getElementById("exportPreview").value;
-  navigator.clipboard.writeText(text).then(() => {
-    showAlert("クリップボードにコピーしました。", "success");
-  }).catch(() => showAlert("コピーに失敗しました。", "error"));
+  if (!text) return;
+  
+  // ExecCommand fallback for iframe clipboard safety
+  const tempArea = document.createElement("textarea");
+  tempArea.value = text;
+  document.body.appendChild(tempArea);
+  tempArea.select();
+  try {
+    document.execCommand("copy");
+    showAlert("クリップボードにコピーしました！", "success");
+  } catch (err) {
+    showAlert("コピーに失敗しました", "error");
+  }
+  document.body.removeChild(tempArea);
 }
 
 function downloadExportFile() {
@@ -758,7 +861,7 @@ function executeImport() {
   const mode = document.querySelector('input[name="importMode"]:checked').value;
 
   if (!text) {
-    showAlert("インポートするデータがありません。", "error");
+    showAlert("インポートするテキストが存在しません。", "error");
     return;
   }
 
@@ -768,7 +871,8 @@ function executeImport() {
   lines.forEach(line => {
     line = line.trim();
     if (!line || line.startsWith("<") || line.startsWith("#")) return;
-    // CSV Parse fallback
+    
+    // Parse CSV line
     const parts = line.split(",").map(p => p.replace(/^"|"$/g, '').trim());
     if (parts.length >= 7 && parts[2]) {
       importedQsos.push({
@@ -776,7 +880,7 @@ function executeImport() {
         callsign: parts[2].toUpperCase(),
         band: parts[3] || "7MHz",
         mode: parts[4] || "SSB",
-        rstSent: parts[5] || "59",
+        rstSent: parts[5] || "59001",
         rstRcvd: parts[6] || "59",
         contest: parts[7] || selectedContest,
         remarks: parts[8] || ""
@@ -785,7 +889,7 @@ function executeImport() {
   });
 
   if (importedQsos.length === 0) {
-    showAlert("有効なQSOデータが検出されませんでした。", "error");
+    showAlert("解析可能なQSOデータが検出されませんでした。(CSV推奨)", "error");
     return;
   }
 
@@ -797,20 +901,25 @@ function executeImport() {
 
   saveToStorage();
   closeImportModal();
-  showAlert(`${importedQsos.length}件の交信ログをインポートしました。`, "success");
+  showAlert(`${importedQsos.length}件の交信ログを正常にインポートしました。`, "success");
 }
 
-// --- UTILS ---
+// --- UTILITY TOAST NOTIFICATION ---
 function showAlert(msg, type = "info") {
   const box = document.getElementById("alertBox");
   box.textContent = msg;
-  box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md ";
-  if (type === "success") box.classList.add("bg-green-950", "text-green-300", "border", "border-green-800");
-  else if (type === "error") box.classList.add("bg-red-950", "text-red-300", "border", "border-red-800");
-  else box.classList.add("bg-blue-950", "text-blue-300", "border", "border-blue-800");
+  box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-lg border ";
+  
+  if (type === "success") {
+    box.classList.add("bg-green-950", "text-green-300", "border-green-800");
+  } else if (type === "error") {
+    box.classList.add("bg-red-950", "text-red-300", "border-red-800");
+  } else {
+    box.classList.add("bg-blue-950", "text-blue-300", "border-blue-800");
+  }
 
   box.classList.remove("hidden");
-  setTimeout(() => box.classList.add("hidden"), 3500);
+  setTimeout(() => box.classList.add("hidden"), 3000);
 }
 </script>
 </body>
