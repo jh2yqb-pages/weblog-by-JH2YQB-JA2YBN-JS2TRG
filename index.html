@@ -493,16 +493,24 @@ function saveToStorage() {
   }
   renderTable();
 
-  // Background non-blocking sync to Firestore
+  // Background non-blocking sync to Firestore with 3.5s timeout guard
   if (currentUser && db) {
     updateSyncStatus("☁️ 同期中...", "text-yellow-400 border-yellow-800");
-    db.collection("users").doc(currentUser.uid).set({ qsos: qsos }, { merge: true })
+    
+    // Timeout promise to prevent UI from staying stuck on "同期中..."
+    const syncTimeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Cloud Sync Timeout")), 3500)
+    );
+
+    const syncPromise = db.collection("users").doc(currentUser.uid).set({ qsos: qsos }, { merge: true });
+
+    Promise.race([syncPromise, syncTimeout])
       .then(() => {
         updateSyncStatus("☁️ クラウド同期済み", "text-green-400 border-green-800");
       })
       .catch((err) => {
-        console.warn("Cloud sync warning:", err);
-        updateSyncStatus("☁️ ローカル保存中", "text-slate-400 border-slate-700");
+        console.warn("Cloud sync status notice:", err);
+        updateSyncStatus("☁️ ローカル保存完了 (クラウド未接続)", "text-amber-400 border-amber-800");
       });
   } else {
     updateSyncStatus("☁️ ローカル保存中", "text-slate-400 border-slate-700");
@@ -533,15 +541,27 @@ function setupAuth() {
         if (userInfo) userInfo.classList.remove("hidden");
         if (loginBtn) loginBtn.classList.add("hidden");
         if (logoutBtn) logoutBtn.classList.remove("hidden");
-        updateSyncStatus("☁️ クラウド同期済み", "text-green-400 border-green-800");
+        updateSyncStatus("☁️ 同期中...", "text-yellow-400 border-yellow-800");
 
-        db.collection("users").doc(user.uid).get().then((doc) => {
-          if (doc.exists && doc.data().qsos) {
-            qsos = doc.data().qsos;
-            localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
-            renderTable();
-          }
-        }).catch(e => console.warn(e));
+        // Timeout promise (4s) for initial cloud data fetching
+        const loadTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Initial Cloud Load Timeout")), 4000)
+        );
+        const loadPromise = db.collection("users").doc(user.uid).get();
+
+        Promise.race([loadPromise, loadTimeout])
+          .then((doc) => {
+            if (doc && doc.exists && doc.data().qsos) {
+              qsos = doc.data().qsos;
+              localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
+              renderTable();
+            }
+            updateSyncStatus("☁️ クラウド同期済み", "text-green-400 border-green-800");
+          })
+          .catch(e => {
+            console.warn("Initial load fallback:", e);
+            updateSyncStatus("☁️ ローカル保存中 (オフライン)", "text-slate-400 border-slate-700");
+          });
       } else {
         if (userInfo) userInfo.classList.add("hidden");
         if (loginBtn) loginBtn.classList.remove("hidden");
