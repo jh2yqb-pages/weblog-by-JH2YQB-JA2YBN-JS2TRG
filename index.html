@@ -63,7 +63,6 @@
       <button type="button" onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">8エリア(北海道)</button>
       <button type="button" onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">9エリア(北陸)</button>
       <button type="button" onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">0エリア(信越)</button>
-      <button type="button" onclick="selectArea('dx')" id="tab-dx" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700 transition">DX</button>
     </div>
     <!-- Contest Dropdown -->
     <div>
@@ -101,7 +100,7 @@
         <!-- Callsign -->
         <div class="col-span-2 sm:col-span-2">
           <label class="block text-xs font-semibold text-slate-400 mb-1">相手コールサイン *</label>
-          <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-lg font-bold rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 uppercase tracking-wider outline-none">
+          <input type="text" id="callsign" required placeholder="例: JH2YQB" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-lg font-bold rounded-lg p-2 focus:ring-2 focus:ring-cyan-500 uppercase tracking-wider outline-none">
           <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden">⚠️ DUPE（同一Band・コンテストで交信済み）</span>
         </div>
         <!-- Band -->
@@ -344,18 +343,101 @@
 <script>
 // --- CONTEST LIST DATA ---
 const CONTEST_DATA = {
-  national: ["ALL JAコンテスト", "6m AND DOWNコンテスト", "フィールドデーコンテスト", "全日本ソックスコンテスト", "JARL DXコンテスト"],
-  "1": ["1エリアコンテスト", "東京コンテスト", "神奈川コンテスト", "千葉コンテスト", "埼玉コンテスト"],
-  "2": ["東海コンテスト", "静岡コンテスト", "岐阜コンテスト", "三重コンテスト"],
-  "3": ["関西コンテスト", "大阪コンテスト", "兵庫コンテスト", "京都コンテスト"],
-  "4": ["中国コンテスト", "岡山コンテスト", "広島コンテスト"],
-  "5": ["四国コンテスト", "愛媛コンテスト", "香川コンテスト"],
-  "6": ["九州コンテスト", "福岡コンテスト", "熊本コンテスト"],
-  "7": ["東北コンテスト", "宮城コンテスト", "福島コンテスト"],
-  "8": ["北海道コンテスト"],
-  "9": ["北陸コンテスト", "富山コンテスト", "石川コンテスト"],
-  "0": ["信越コンテスト", "長野コンテスト", "新潟コンテスト"],
-  dx: ["CQ WW WPX Contest", "CQ WW DX Contest", "IARU HF World Championship"]
+  national: [
+    "ALL JAコンテスト",
+    "6m and downコンテスト",
+    "フィールドデーコンテスト",
+    "全市全群コンテスト",
+    "ALL ASIAN DX コンテストCW",
+    "ALL ASIAN DX コンテストPhone"
+  ],
+  "1": [
+    "オール茨城コンテスト",
+    "東京コンテスト",
+    "オール群馬コンテスト",
+    "オール神奈川コンテスト",
+    "山梨コンテストコンテスト",
+    "オール茨城コンテストII部",
+    "栃木コンテスト",
+    "オール千葉コンテスト",
+    "東京CWコンテスト",
+    "東京UHFコンテスト",
+    "オール埼玉コンテスト",
+    "関東UHFコンテスト"
+  ],
+  "2": [
+    "東海QSOコンテスト",
+    "愛・地球博記念コンテスト",
+    "東海マラソンコンテスト",
+    "オール三重33コンテスト",
+    "静岡コンテスト"
+  ],
+  "3": [
+    "KANHAMコンテスト",
+    "関西V・U・Sコンテスト",
+    "XPOコンテスト",
+    "京都コンテスト",
+    "ALL滋賀コンテスト",
+    "奈良V・UHFコンテスト",
+    "オール大阪コンテスト",
+    "和歌山コンテスト",
+    "オール兵庫コンテスト"
+  ],
+  "4": [
+    "オールJA4コンテスト",
+    "おいでませオール山口（HF）",
+    "おいでませオール山口（V/U/SHF）",
+    "島根対全日本コンテスト",
+    "馬関まつりコンテスト",
+    "オール岡山 FT8/FT4コンテスト",
+    "オール岡山コンテスト",
+    "オール鳥取コンテスト",
+    "広島WASコンテスト"
+  ],
+  "5": [
+    "オールJA5コンテスト",
+    "愛媛マラソンコンテスト",
+    "香川マラソンコンテスト",
+    "高知マラソンコンテスト",
+    "徳島マラソンコンテスト"
+  ],
+  "6": [
+    "オール九州コンテスト",
+    "福岡コンテスト",
+    "オール佐賀コンテスト",
+    "長崎県コンテスト",
+    "オール熊本コンテスト",
+    "大分コンテスト",
+    "宮崎コンテスト",
+    "鹿児島コンテスト"
+  ],
+  "7": [
+    "ALL東北コンテスト",
+    "オール宮城コンテスト",
+    "岩手県支部コンテスト",
+    "青森県コンテスト",
+    "秋田県コンテスト"
+  ],
+  "8": [
+    "ALL JA8 コンテスト",
+    "石狩後志支部コンテスト",
+    "渡島檜山支部コンテスト",
+    "上川宗谷支部コンテスト",
+    "十勝支部 New Year QSO",
+    "十勝支部 マラソンコンテスト",
+    "オホーツクコンテスト",
+    "胆振日高支部コンテスト",
+    "オール釧根コンテスト"
+  ],
+  "9": [
+    "JA9コンテスト VU",
+    "JA9コンテスト HF 電話",
+    "JA9コンテスト HF 電信"
+  ],
+  "0": [
+    "JA0 QSO",
+    "JA0 VHF"
+  ]
 };
 
 const BAND_ORDER = ["1.9MHz", "3.5MHz", "7MHz", "14MHz", "21MHz", "28MHz", "50MHz", "144MHz", "430MHz", "1200MHz", "2400MHz"];
@@ -378,6 +460,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
 let db = null;
 let auth = null;
 try {
