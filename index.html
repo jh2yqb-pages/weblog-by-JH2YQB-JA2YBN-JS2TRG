@@ -33,8 +33,8 @@
     </div>
     <div id="authStatus" class="flex items-center gap-3 text-sm">
       <span id="userInfo" class="hidden text-slate-300">ユーザー: <strong id="userName" class="text-white"></strong></span>
-      <button id="loginBtn" onclick="loginGoogle()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition">Googleログイン</button>
-      <button id="logoutBtn" onclick="logoutGoogle()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-medium transition">ログアウト</button>
+      <button id="loginBtn" onclick="window.loginGoogle()" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition">Googleログイン</button>
+      <button id="logoutBtn" onclick="window.logoutGoogle()" class="hidden bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-1.5 rounded-lg text-xs font-medium transition">ログアウト</button>
     </div>
   </div>
 </header>
@@ -48,21 +48,21 @@
   <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">1. エリア・コンテストの選択</h2>
     <div class="flex flex-wrap gap-1.5 mb-4" id="areaTabs">
-      <button onclick="selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">全国</button>
-      <button onclick="selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">1エリア(関東)</button>
-      <button onclick="selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">2エリア(東海)</button>
-      <button onclick="selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">3エリア(関西)</button>
-      <button onclick="selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">4エリア(中国)</button>
-      <button onclick="selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">5エリア(四国)</button>
-      <button onclick="selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">6エリア(九州)</button>
-      <button onclick="selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">7エリア(東北)</button>
-      <button onclick="selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">8エリア(北海道)</button>
-      <button onclick="selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">9エリア(北陸)</button>
-      <button onclick="selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">0エリア(信越)</button>
+      <button onclick="window.selectArea('national')" id="tab-national" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">全国</button>
+      <button onclick="window.selectArea('1')" id="tab-1" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">1エリア(関東)</button>
+      <button onclick="window.selectArea('2')" id="tab-2" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">2エリア(東海)</button>
+      <button onclick="window.selectArea('3')" id="tab-3" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">3エリア(関西)</button>
+      <button onclick="window.selectArea('4')" id="tab-4" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">4エリア(中国)</button>
+      <button onclick="window.selectArea('5')" id="tab-5" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">5エリア(四国)</button>
+      <button onclick="window.selectArea('6')" id="tab-6" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">6エリア(九州)</button>
+      <button onclick="window.selectArea('7')" id="tab-7" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">7エリア(東北)</button>
+      <button onclick="window.selectArea('8')" id="tab-8" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">8エリア(北海道)</button>
+      <button onclick="window.selectArea('9')" id="tab-9" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">9エリア(北陸)</button>
+      <button onclick="window.selectArea('0')" id="tab-0" class="area-tab px-3 py-1.5 text-xs rounded-lg bg-slate-800 hover:bg-slate-700 transition">0エリア(信越)</button>
     </div>
     <div>
       <label for="contestSelect" class="block text-xs font-semibold text-slate-400 mb-1">対象コンテスト</label>
-      <select id="contestSelect" onchange="onContestChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+      <select id="contestSelect" onchange="window.onContestChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </select>
     </div>
   </section>
@@ -70,7 +70,7 @@
   <!-- Logging Form -->
   <section class="bg-slate-900 p-5 rounded-xl shadow-md border border-slate-800">
     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">2. QSOデータ入力</h2>
-    <form id="qsoForm" onsubmit="handleSaveQso(event)" class="space-y-4">
+    <form id="qsoForm" onsubmit="window.handleSaveQso(event)" class="space-y-4">
       <input type="hidden" id="editIndex" value="-1">
       
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
@@ -83,14 +83,14 @@
         <!-- Callsign -->
         <div class="col-span-2 sm:col-span-1 md:col-span-2">
           <label class="block text-xs font-semibold text-slate-400 mb-1">相手コールサイン *</label>
-          <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-base font-bold rounded-lg p-2 focus:ring-2 focus:ring-blue-500 uppercase tracking-wider outline-none">
+          <input type="text" id="callsign" required placeholder="例: JA2YAA" oninput="this.value = this.value.toUpperCase(); window.checkDupe();" class="w-full border border-slate-700 bg-slate-800 text-slate-100 font-mono text-base font-bold rounded-lg p-2 focus:ring-2 focus:ring-blue-500 uppercase tracking-wider outline-none">
           <span id="dupeWarning" class="text-xs text-red-400 font-bold hidden block mt-0.5">⚠️ DUPE（交信済み）</span>
         </div>
 
         <!-- Band -->
         <div>
           <label class="block text-xs font-semibold text-slate-400 mb-1">周波数 (Band)</label>
-          <select id="band" onchange="onBandChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          <select id="band" onchange="window.onBandChange()" class="w-full border border-slate-700 bg-slate-800 text-slate-100 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
             <option value="1.9MHz">1.9 MHz</option>
             <option value="3.5MHz">3.5 MHz</option>
             <option value="7MHz" selected>7 MHz</option>
@@ -145,12 +145,12 @@
           <label class="block text-xs font-semibold text-slate-400 mb-1">送信ナンバー動作</label>
           <div class="flex items-center gap-3 pt-1 text-xs">
             <label class="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="exchangeMode" value="fixed" onchange="updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 固定
+              <input type="radio" name="exchangeMode" value="fixed" onchange="window.updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 固定
             </label>
             <label class="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="exchangeMode" value="increment" checked onchange="updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 連番 (Band別自動追従)
+              <input type="radio" name="exchangeMode" value="increment" checked onchange="window.updateSerialForCurrentBand()" class="text-cyan-500 focus:ring-0"> 連番 (Band別自動追従)
             </label>
-            <button type="button" onclick="resetSerial()" class="text-[10px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2 py-0.5 rounded transition">↺ リセット</button>
+            <button type="button" onclick="window.resetSerial()" class="text-[10px] bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-2 py-0.5 rounded transition">↺ リセット</button>
           </div>
         </div>
 
@@ -163,7 +163,7 @@
         <!-- Action Buttons -->
         <div class="sm:col-span-4 md:col-span-1 flex gap-2 pt-4 sm:pt-0">
           <button type="submit" id="saveBtn" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-3 rounded-lg text-xs transition shadow-md whitespace-nowrap">交信保存</button>
-          <button type="button" id="cancelEditBtn" onclick="resetForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-2 rounded-lg text-xs transition">取消</button>
+          <button type="button" id="cancelEditBtn" onclick="window.resetForm()" class="hidden bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-2 rounded-lg text-xs transition">取消</button>
         </div>
       </div>
     </form>
@@ -178,13 +178,13 @@
       </div>
       
       <div class="flex flex-wrap items-center gap-2">
-        <select id="tableFilter" onchange="renderTable()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 focus:ring-2 focus:ring-cyan-500 outline-none">
+        <select id="tableFilter" onchange="window.renderTable()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg p-1.5 focus:ring-2 focus:ring-cyan-500 outline-none">
           <option value="selected">現在のコンテストのみ表示</option>
           <option value="all">すべてのログを表示</option>
         </select>
-        <input type="text" id="searchInput" oninput="renderTable()" placeholder="コールサイン検索..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-cyan-500 outline-none w-36">
-        <button onclick="openImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📥 インポート</button>
-        <button onclick="openExportModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📤 エクスポート</button>
+        <input type="text" id="searchInput" oninput="window.renderTable()" placeholder="コールサイン検索..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-cyan-500 outline-none w-36">
+        <button onclick="window.openImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📥 インポート</button>
+        <button onclick="window.openExportModal()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">📤 エクスポート</button>
       </div>
     </div>
 
@@ -216,21 +216,21 @@
   <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl">
     <div class="p-4 border-b border-slate-800 flex justify-between items-center">
       <h3 class="text-base font-bold text-white">ログ出力・サマリーシート作成</h3>
-      <button onclick="closeExportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <button onclick="window.closeExportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
     </div>
     
     <div class="p-4 overflow-y-auto space-y-4 text-xs">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-800/50 p-3 rounded-lg border border-slate-800">
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">出力対象</label>
-          <select id="exportScope" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportScope" onchange="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
             <option value="selected">現在選択中のコンテストのみ</option>
             <option value="all">全コンテストログ</option>
           </select>
         </div>
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">出力形式</label>
-          <select id="exportFormat" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportFormat" onchange="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
             <option value="jarl">JARL推奨テキスト形式 (.log)</option>
             <option value="adif">ADIF形式 (.adi)</option>
             <option value="csv">CSV形式 (.csv)</option>
@@ -238,7 +238,7 @@
         </div>
         <div>
           <label class="block text-slate-400 mb-1 font-semibold">ソート順</label>
-          <select id="exportSort" onchange="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
+          <select id="exportSort" onchange="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1.5 text-slate-200">
             <option value="time">日時順 (UTC)</option>
             <option value="band">周波数順 (Band)</option>
           </select>
@@ -250,23 +250,23 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <div>
             <label class="block text-slate-400 text-[10px]">自局コールサイン</label>
-            <input type="text" id="summaryMyCall" placeholder="JA1ZLO" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100 uppercase">
+            <input type="text" id="summaryMyCall" placeholder="JA1ZLO" oninput="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100 uppercase">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">参加種目コード</label>
-            <input type="text" id="summaryCategory" placeholder="C7" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryCategory" placeholder="C7" oninput="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">氏名 / Name</label>
-            <input type="text" id="summaryName" placeholder="電波 太郎" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryName" placeholder="電波 太郎" oninput="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
           </div>
           <div class="col-span-2">
             <label class="block text-slate-400 text-[10px]">住所 / Address</label>
-            <input type="text" id="summaryAddress" placeholder="東京都千代田区..." oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="text" id="summaryAddress" placeholder="東京都千代田区..." oninput="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
           </div>
           <div>
             <label class="block text-slate-400 text-[10px]">連絡先 Email</label>
-            <input type="email" id="summaryEmail" placeholder="cq@example.com" oninput="updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
+            <input type="email" id="summaryEmail" placeholder="cq@example.com" oninput="window.updateExportPreview()" class="w-full bg-slate-800 border border-slate-700 rounded p-1 text-slate-100">
           </div>
         </div>
       </div>
@@ -278,8 +278,8 @@
     </div>
 
     <div class="p-4 border-t border-slate-800 flex justify-end gap-2">
-      <button onclick="copyExportText()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-lg text-xs transition">📋 クリップボードにコピー</button>
-      <button onclick="downloadExportFile()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition shadow-md">💾 ファイル保存</button>
+      <button onclick="window.copyExportText()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-2 rounded-lg text-xs transition">📋 クリップボードにコピー</button>
+      <button onclick="window.downloadExportFile()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition shadow-md">💾 ファイル保存</button>
     </div>
   </div>
 </div>
@@ -289,13 +289,13 @@
   <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-2xl flex flex-col shadow-2xl">
     <div class="p-4 border-b border-slate-800 flex justify-between items-center">
       <h3 class="text-base font-bold text-white">交信ログ インポート</h3>
-      <button onclick="closeImportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <button onclick="window.closeImportModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
     </div>
     
     <div class="p-4 space-y-4 text-xs">
       <div>
         <label class="block text-slate-400 mb-1 font-semibold">ファイルから読み込み (.csv, .log, .txt, .adi)</label>
-        <input type="file" id="importFile" accept=".csv,.log,.txt,.adi" onchange="handleFileSelect(event)" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded p-2 text-xs">
+        <input type="file" id="importFile" accept=".csv,.log,.txt,.adi" onchange="window.handleFileSelect(event)" class="w-full bg-slate-800 text-slate-200 border border-slate-700 rounded p-2 text-xs">
       </div>
       <div>
         <label class="block text-slate-400 mb-1 font-semibold">またはテキスト直接貼り付け</label>
@@ -315,8 +315,8 @@
     </div>
 
     <div class="p-4 border-t border-slate-800 flex justify-end gap-2">
-      <button onclick="closeImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium">キャンセル</button>
-      <button onclick="executeImport()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">インポート実行</button>
+      <button onclick="window.closeImportModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-xs font-medium">キャンセル</button>
+      <button onclick="window.executeImport()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-lg text-xs transition">インポート実行</button>
     </div>
   </div>
 </div>
@@ -327,14 +327,14 @@
     <h3 class="text-base font-bold text-white">ログの削除</h3>
     <p class="text-xs text-slate-300">選択した交信ログを削除します。よろしいですか？</p>
     <div class="flex justify-center gap-3 pt-2">
-      <button onclick="closeDeleteModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-1.5 rounded-lg text-xs font-medium">キャンセル</button>
-      <button onclick="confirmDeleteQso()" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">削除実行</button>
+      <button onclick="window.closeDeleteModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-1.5 rounded-lg text-xs font-medium">キャンセル</button>
+      <button onclick="window.confirmDeleteQso()" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">削除実行</button>
     </div>
   </div>
 </div>
 
 <script>
-// --- GLOBAL DATA & STATE ---
+// --- GLOBAL DATA ---
 const CONTEST_DATA = {
   national: ["ALL JA", "6m and down", "フィールドデーコンテスト", "全市全群", "ALL ASIAN DX CW", "ALL ASIAN DX Phone"],
   "1": ["オール茨城", "東京コンテスト", "オール群馬", "オール神奈川", "山梨コンテスト", "オール茨城II部", "栃木コンテスト", "オール千葉", "東京CW", "東京UHFコンテスト", "オール埼玉", "関東UHFコンテスト"],
@@ -359,10 +359,10 @@ let deleteTargetIndex = -1;
 let db = null;
 let auth = null;
 
-// Firebase Init Protection
+// 安全なFirebase初期化
 try {
   if (typeof firebase !== "undefined") {
-    // Import the functions you need from the SDKs you need
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -379,75 +379,83 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-    firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
   }
 } catch (e) {
-  console.warn("Firebase initialization skipped or failed:", e);
+  console.warn("Firebase Init Skipped:", e);
 }
 
-// --- INITIALIZATION ---
-window.addEventListener("DOMContentLoaded", () => {
-  loadLocalLogs();
-  selectArea("national");
-  setupAuth();
-  resetForm();
-  renderTable();
-});
+// 画面ポップアップ表示
+window.showAlert = function(msg, type = "info") {
+  const box = document.getElementById("alertBox");
+  if (!box) return;
+  box.textContent = msg;
+  box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md ";
+  if (type === "success") box.classList.add("bg-green-950", "text-green-300", "border", "border-green-800");
+  else if (type === "error") box.classList.add("bg-red-950", "text-red-300", "border", "border-red-800");
+  else box.classList.add("bg-blue-950", "text-blue-300", "border", "border-blue-800");
 
-function loadLocalLogs() {
+  box.classList.remove("hidden");
+  setTimeout(() => box.classList.add("hidden"), 3500);
+};
+
+// 同期ステータス表示
+window.updateSyncStatus = function(text, colorClass) {
+  const el = document.getElementById("syncStatus");
+  if (el) {
+    el.textContent = text;
+    el.className = `px-2 py-0.5 rounded-full bg-slate-800 font-medium ${colorClass}`;
+  }
+};
+
+// ローカル保存データ読み込み
+window.loadLocalLogs = function() {
   try {
     const saved = localStorage.getItem("weblog_qsos");
     if (saved) qsos = JSON.parse(saved);
   } catch (e) {
     qsos = [];
   }
-}
+};
 
-function saveToStorage() {
+// ストレージ保存処理
+window.saveToStorage = function() {
   try {
     localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
   } catch(e) {
-    console.error("LocalStorage save failed", e);
+    console.error("Save failed", e);
   }
-  renderTable();
+  window.renderTable();
 
   if (currentUser && db) {
-    updateSyncStatus("☁️ 同期中...", "text-yellow-400");
+    window.updateSyncStatus("☁️ 同期中...", "text-yellow-400");
     let timedOut = false;
     const timeoutId = setTimeout(() => {
       timedOut = true;
-      updateSyncStatus("☁️ ローカル保存完了 (クラウド未接続)", "text-slate-400");
+      window.updateSyncStatus("☁️ ローカル保存完了 (クラウド未接続)", "text-slate-400");
     }, 3500);
 
     db.collection("users").doc(currentUser.uid).set({ qsos: qsos }, { merge: true })
       .then(() => {
         if (!timedOut) {
           clearTimeout(timeoutId);
-          updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
+          window.updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (!timedOut) {
           clearTimeout(timeoutId);
-          updateSyncStatus("☁️ ローカル保存完了 (クラウド未接続)", "text-slate-400");
+          window.updateSyncStatus("☁️ ローカル保存完了 (クラウド未接続)", "text-slate-400");
         }
       });
   } else {
-    updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
+    window.updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
   }
-}
+};
 
-function updateSyncStatus(text, colorClass) {
-  const el = document.getElementById("syncStatus");
-  if (el) {
-    el.textContent = text;
-    el.className = `px-2 py-0.5 rounded-full bg-slate-800 font-medium ${colorClass}`;
-  }
-}
-
-function setupAuth() {
+// ログイン認証セットアップ
+window.setupAuth = function() {
   if (!auth) return;
   auth.onAuthStateChanged((user) => {
     currentUser = user;
@@ -461,39 +469,39 @@ function setupAuth() {
       if (userInfo) userInfo.classList.remove("hidden");
       if (loginBtn) loginBtn.classList.add("hidden");
       if (logoutBtn) logoutBtn.classList.remove("hidden");
-      updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
+      window.updateSyncStatus("☁️ クラウド同期済み", "text-green-400");
 
       db.collection("users").doc(user.uid).get().then((doc) => {
         if (doc.exists && doc.data().qsos) {
           qsos = doc.data().qsos;
           localStorage.setItem("weblog_qsos", JSON.stringify(qsos));
-          renderTable();
-          updateSerialForCurrentBand();
+          window.renderTable();
+          window.updateSerialForCurrentBand();
         }
       }).catch(e => console.error(e));
     } else {
       if (userInfo) userInfo.classList.add("hidden");
       if (loginBtn) loginBtn.classList.remove("hidden");
       if (logoutBtn) logoutBtn.classList.add("hidden");
-      updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
+      window.updateSyncStatus("☁️ 未ログイン (ローカル保存)", "text-slate-400");
     }
   });
-}
+};
 
-function loginGoogle() {
+window.loginGoogle = function() {
   if (!auth) {
-    showAlert("Firebase認証が初期化されていません。", "error");
+    window.showAlert("Firebase認証が初期化されていません。", "error");
     return;
   }
   const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch((err) => showAlert("ログインエラー: " + err.message, "error"));
-}
+  auth.signInWithPopup(provider).catch((err) => window.showAlert("ログインエラー: " + err.message, "error"));
+};
 
-function logoutGoogle() {
+window.logoutGoogle = function() {
   if (auth) auth.signOut();
-}
+};
 
-function selectArea(areaKey) {
+window.selectArea = function(areaKey) {
   currentArea = areaKey;
   document.querySelectorAll(".area-tab").forEach(tab => tab.classList.remove("active-tab"));
   const activeBtn = document.getElementById(`tab-${areaKey}`);
@@ -511,18 +519,18 @@ function selectArea(areaKey) {
   });
 
   selectedContest = contests.length > 0 ? contests[0] : "";
-  renderTable();
-  updateSerialForCurrentBand();
-}
+  window.renderTable();
+  window.updateSerialForCurrentBand();
+};
 
-function onContestChange() {
+window.onContestChange = function() {
   const select = document.getElementById("contestSelect");
   if (select) selectedContest = select.value;
-  renderTable();
-  updateSerialForCurrentBand();
-}
+  window.renderTable();
+  window.updateSerialForCurrentBand();
+};
 
-function checkDupe() {
+window.checkDupe = function() {
   const callInput = document.getElementById("callsign");
   const bandInput = document.getElementById("band");
   const warning = document.getElementById("dupeWarning");
@@ -540,9 +548,9 @@ function checkDupe() {
   const isDupe = qsos.some((q, idx) => idx !== editIdx && q.contest === selectedContest && q.callsign === call && q.band === band);
   if (isDupe) warning.classList.remove("hidden");
   else warning.classList.add("hidden");
-}
+};
 
-function getNextExchangeNumber(currentStr) {
+window.getNextExchangeNumber = function(currentStr) {
   if (!currentStr) return "59001";
   const match = currentStr.match(/^(.*?)(\d+)$/);
   if (match) {
@@ -552,9 +560,9 @@ function getNextExchangeNumber(currentStr) {
     return prefix + String(nextVal).padStart(digits.length, '0');
   }
   return currentStr + "001";
-}
+};
 
-function updateSerialForCurrentBand() {
+window.updateSerialForCurrentBand = function() {
   const exMode = document.querySelector('input[name="exchangeMode"]:checked')?.value;
   if (exMode !== "increment") return;
 
@@ -571,24 +579,24 @@ function updateSerialForCurrentBand() {
   if (!rstSentInput) return;
 
   if (lastQsoForBand && lastQsoForBand.rstSent) {
-    rstSentInput.value = getNextExchangeNumber(lastQsoForBand.rstSent);
+    rstSentInput.value = window.getNextExchangeNumber(lastQsoForBand.rstSent);
   } else {
     rstSentInput.value = "59001";
   }
-}
+};
 
-function onBandChange() {
-  checkDupe();
-  updateSerialForCurrentBand();
-}
+window.onBandChange = function() {
+  window.checkDupe();
+  window.updateSerialForCurrentBand();
+};
 
-function resetSerial() {
+window.resetSerial = function() {
   const rstSentInput = document.getElementById("rstSent");
   if (rstSentInput) rstSentInput.value = "59001";
-  showAlert("送信ナンバーを 59001 にリセットしました。", "info");
-}
+  window.showAlert("送信ナンバーを 59001 にリセットしました。", "info");
+};
 
-function formatDateToInput(dateObj) {
+window.formatDateToInput = function(dateObj) {
   const d = new Date(dateObj);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -596,9 +604,9 @@ function formatDateToInput(dateObj) {
   const hours = String(d.getHours()).padStart(2, '0');
   const minutes = String(d.getMinutes()).padStart(2, '0');
   return `${year}-${month}-${day}T${hours}:${minutes}`;
-}
+};
 
-function handleSaveQso(e) {
+window.handleSaveQso = function(e) {
   if (e && e.preventDefault) e.preventDefault();
   try {
     const callsign = document.getElementById("callsign").value.trim().toUpperCase();
@@ -611,7 +619,7 @@ function handleSaveQso(e) {
     const qsoTimeVal = document.getElementById("qsoTime").value;
 
     if (!callsign) {
-      showAlert("相手コールサインを入力してください。", "error");
+      window.showAlert("相手コールサインを入力してください。", "error");
       return;
     }
 
@@ -630,21 +638,21 @@ function handleSaveQso(e) {
 
     if (editIdx >= 0) {
       qsos[editIdx] = qsoData;
-      showAlert("交信データを更新しました。", "success");
+      window.showAlert("交信データを更新しました。", "success");
     } else {
       qsos.unshift(qsoData);
-      showAlert("交信データを保存しました。", "success");
+      window.showAlert("交信データを保存しました。", "success");
     }
 
-    saveToStorage();
-    resetForm();
+    window.saveToStorage();
+    window.resetForm();
   } catch (err) {
     console.error(err);
-    showAlert("保存中にエラーが発生しました。", "error");
+    window.showAlert("保存中にエラーが発生しました。", "error");
   }
-}
+};
 
-function editQso(index) {
+window.editQso = function(index) {
   const q = qsos[index];
   if (!q) return;
   document.getElementById("editIndex").value = index;
@@ -656,35 +664,35 @@ function editQso(index) {
   document.getElementById("remarks").value = q.remarks || "";
 
   if (q.time) {
-    document.getElementById("qsoTime").value = formatDateToInput(q.time);
+    document.getElementById("qsoTime").value = window.formatDateToInput(q.time);
   }
 
   document.getElementById("saveBtn").textContent = "変更を保存";
   document.getElementById("cancelEditBtn").classList.remove("hidden");
   window.scrollTo({ top: 120, behavior: "smooth" });
-}
+};
 
-function deleteQso(index) {
+window.deleteQso = function(index) {
   deleteTargetIndex = index;
   document.getElementById("deleteConfirmModal").classList.remove("hidden");
-}
+};
 
-function closeDeleteModal() {
+window.closeDeleteModal = function() {
   deleteTargetIndex = -1;
   document.getElementById("deleteConfirmModal").classList.add("hidden");
-}
+};
 
-function confirmDeleteQso() {
+window.confirmDeleteQso = function() {
   if (deleteTargetIndex >= 0 && deleteTargetIndex < qsos.length) {
     qsos.splice(deleteTargetIndex, 1);
-    saveToStorage();
-    showAlert("ログを削除しました。", "info");
-    updateSerialForCurrentBand();
+    window.saveToStorage();
+    window.showAlert("ログを削除しました。", "info");
+    window.updateSerialForCurrentBand();
   }
-  closeDeleteModal();
-}
+  window.closeDeleteModal();
+};
 
-function resetForm() {
+window.resetForm = function() {
   document.getElementById("editIndex").value = "-1";
   document.getElementById("callsign").value = "";
   document.getElementById("rstRcvd").value = "";
@@ -693,12 +701,11 @@ function resetForm() {
   document.getElementById("saveBtn").textContent = "交信保存";
   document.getElementById("cancelEditBtn").classList.add("hidden");
   
-  document.getElementById("qsoTime").value = formatDateToInput(new Date());
+  document.getElementById("qsoTime").value = window.formatDateToInput(new Date());
+  window.updateSerialForCurrentBand();
+};
 
-  updateSerialForCurrentBand();
-}
-
-function renderTable() {
+window.renderTable = function() {
   const tbody = document.getElementById("logTableBody");
   const filterType = document.getElementById("tableFilter").value;
   const searchKeyword = document.getElementById("searchInput").value.trim().toUpperCase();
@@ -740,24 +747,24 @@ function renderTable() {
       <td class="p-2.5 text-slate-400 font-sans text-[11px]">${q.contest || ''}</td>
       <td class="p-2.5 text-slate-400 font-sans text-[11px] max-w-xs truncate">${q.remarks || ''}</td>
       <td class="p-2.5 text-center whitespace-nowrap">
-        <button onclick="editQso(${originalIndex})" class="text-blue-400 hover:text-blue-300 font-sans mr-2">編集</button>
-        <button onclick="deleteQso(${originalIndex})" class="text-red-400 hover:text-red-300 font-sans">削除</button>
+        <button onclick="window.editQso(${originalIndex})" class="text-blue-400 hover:text-blue-300 font-sans mr-2">編集</button>
+        <button onclick="window.deleteQso(${originalIndex})" class="text-red-400 hover:text-red-300 font-sans">削除</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
-}
+};
 
-function openExportModal() {
+window.openExportModal = function() {
   document.getElementById("exportModal").classList.remove("hidden");
-  updateExportPreview();
-}
+  window.updateExportPreview();
+};
 
-function closeExportModal() {
+window.closeExportModal = function() {
   document.getElementById("exportModal").classList.add("hidden");
-}
+};
 
-function getSortedExportLogs() {
+window.getSortedExportLogs = function() {
   const scope = document.getElementById("exportScope").value;
   const sortType = document.getElementById("exportSort").value;
 
@@ -776,13 +783,13 @@ function getSortedExportLogs() {
     logs.sort((a, b) => new Date(a.time) - new Date(b.time));
   }
   return logs;
-}
+};
 
-function updateExportPreview() {
+window.updateExportPreview = function() {
   const format = document.getElementById("exportFormat").value;
   const jarlFields = document.getElementById("jarlFields");
   const preview = document.getElementById("exportPreview");
-  const logs = getSortedExportLogs();
+  const logs = window.getSortedExportLogs();
 
   if (format === "jarl") {
     jarlFields.classList.remove("hidden");
@@ -832,16 +839,16 @@ function updateExportPreview() {
     });
     preview.value = text;
   }
-}
+};
 
-function copyExportText() {
+window.copyExportText = function() {
   const text = document.getElementById("exportPreview").value;
   navigator.clipboard.writeText(text).then(() => {
-    showAlert("クリップボードにコピーしました。", "success");
-  }).catch(() => showAlert("コピーに失敗しました。", "error"));
-}
+    window.showAlert("クリップボードにコピーしました。", "success");
+  }).catch(() => window.showAlert("コピーに失敗しました。", "error"));
+};
 
-function downloadExportFile() {
+window.downloadExportFile = function() {
   const format = document.getElementById("exportFormat").value;
   const content = document.getElementById("exportPreview").value;
   let ext = "txt";
@@ -854,17 +861,17 @@ function downloadExportFile() {
   a.href = URL.createObjectURL(blob);
   a.download = `contest_log_${new Date().toISOString().slice(0, 10)}.${ext}`;
   a.click();
-}
+};
 
-function openImportModal() {
+window.openImportModal = function() {
   document.getElementById("importModal").classList.remove("hidden");
-}
+};
 
-function closeImportModal() {
+window.closeImportModal = function() {
   document.getElementById("importModal").classList.add("hidden");
-}
+};
 
-function handleFileSelect(e) {
+window.handleFileSelect = function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -872,14 +879,14 @@ function handleFileSelect(e) {
     document.getElementById("importText").value = evt.target.result;
   };
   reader.readAsText(file);
-}
+};
 
-function executeImport() {
+window.executeImport = function() {
   const text = document.getElementById("importText").value.trim();
   const mode = document.querySelector('input[name="importMode"]:checked').value;
 
   if (!text) {
-    showAlert("インポートするデータがありません。", "error");
+    window.showAlert("インポートするデータがありません。", "error");
     return;
   }
 
@@ -905,30 +912,26 @@ function executeImport() {
   });
 
   if (importedQsos.length === 0) {
-    showAlert("有効なQSOデータが検出されませんでした。", "error");
+    window.showAlert("有効なQSOデータが検出されませんでした。", "error");
     return;
   }
 
   if (mode === "overwrite") qsos = importedQsos;
   else qsos = [...qsos, ...importedQsos];
 
-  saveToStorage();
-  closeImportModal();
-  showAlert(`${importedQsos.length}件の交信ログをインポートしました。`, "success");
-}
+  window.saveToStorage();
+  window.closeImportModal();
+  window.showAlert(`${importedQsos.length}件の交信ログをインポートしました。`, "success");
+};
 
-function showAlert(msg, type = "info") {
-  const box = document.getElementById("alertBox");
-  if (!box) return;
-  box.textContent = msg;
-  box.className = "p-4 rounded-xl text-sm font-medium transition-all shadow-md ";
-  if (type === "success") box.classList.add("bg-green-950", "text-green-300", "border", "border-green-800");
-  else if (type === "error") box.classList.add("bg-red-950", "text-red-300", "border", "border-red-800");
-  else box.classList.add("bg-blue-950", "text-blue-300", "border", "border-blue-800");
-
-  box.classList.remove("hidden");
-  setTimeout(() => box.classList.add("hidden"), 3500);
-}
+// --- INITIAL LOAD ---
+window.addEventListener("DOMContentLoaded", () => {
+  window.loadLocalLogs();
+  window.selectArea("national");
+  window.setupAuth();
+  window.resetForm();
+  window.renderTable();
+});
 </script>
 </body>
 </html>
